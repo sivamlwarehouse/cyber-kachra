@@ -3,7 +3,7 @@
   "installCommand": "npm install",
   "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
   "functions": {
-    "api/_bundle.js": {
+    "api/index.js": {
       "includeFiles": "data/**",
       "maxDuration": 30
     }
