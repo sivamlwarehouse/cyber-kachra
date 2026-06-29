@@ -1,8 +1,9 @@
 {
   "buildCommand": "npm run build",
   "installCommand": "npm install",
+  "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
   "functions": {
-    "src/app.ts": {
+    "api/_bundle.js": {
       "includeFiles": "data/**",
       "maxDuration": 30
     }
