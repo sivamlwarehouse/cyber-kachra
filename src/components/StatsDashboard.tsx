@@ -1,5 +1,6 @@
 import React from 'react';
 import { ShieldAlert, RefreshCw, CheckCircle, Award } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface StatsDashboardProps {
   overview: {
@@ -13,6 +14,8 @@ interface StatsDashboardProps {
 }
 
 export default function StatsDashboard({ overview, onRefresh, loading }: StatsDashboardProps) {
+  const { t } = useLanguage();
+  const s = t.stats;
   const percentageCleaned = overview.total_reported > 0
     ? Math.round((overview.resolved / overview.total_reported) * 100)
     : 100;
@@ -26,14 +29,14 @@ export default function StatsDashboard({ overview, onRefresh, loading }: StatsDa
         </div>
         <div>
           <span className="text-[10px] font-mono font-bold text-natural-clay uppercase tracking-widest">
-            Active Dumps
+            {s.activeDumps}
           </span>
           <div className="text-3xl font-serif font-bold text-natural-heading mt-1">
             {overview.active}
           </div>
         </div>
         <div className="text-[10px] text-natural-clay/80 font-medium mt-3 flex items-center gap-1">
-          <span>● Geotagged & Unresolved</span>
+          <span>● {s.activeSub}</span>
         </div>
       </div>
 
@@ -44,14 +47,14 @@ export default function StatsDashboard({ overview, onRefresh, loading }: StatsDa
         </div>
         <div>
           <span className="text-[10px] font-mono font-bold text-[#7A7872] uppercase tracking-widest">
-            Pending Verify
+            {s.pending}
           </span>
           <div className="text-3xl font-serif font-bold text-natural-heading mt-1">
             {overview.pending}
           </div>
         </div>
         <div className="text-[10px] text-[#7A7872]/80 font-medium mt-3 flex items-center gap-1">
-          <span>● Awaiting Auditing</span>
+          <span>● {s.pendingSub}</span>
         </div>
       </div>
 
@@ -62,14 +65,14 @@ export default function StatsDashboard({ overview, onRefresh, loading }: StatsDa
         </div>
         <div>
           <span className="text-[10px] font-mono font-bold text-natural-sage uppercase tracking-widest">
-            Verified Clean
+            {s.resolved}
           </span>
           <div className="text-3xl font-serif font-bold text-natural-heading mt-1">
             {overview.resolved}
           </div>
         </div>
         <div className="text-[10px] text-natural-sage/80 font-medium mt-3 flex items-center gap-1">
-          <span>✓ Removed from Shameboard</span>
+          <span>✓ {s.resolvedSub}</span>
         </div>
       </div>
 
@@ -80,14 +83,14 @@ export default function StatsDashboard({ overview, onRefresh, loading }: StatsDa
         </div>
         <div>
           <span className="text-[10px] font-mono font-bold text-white/70 uppercase tracking-widest">
-            Cleanup Rate
+            {s.cleanupRate}
           </span>
           <div className="text-3xl font-serif italic font-bold text-white mt-1">
             {percentageCleaned}%
           </div>
         </div>
         <div className="text-[10px] text-white/80 font-medium mt-3 flex items-center gap-1">
-          <span>★ Community Resolution rate</span>
+          <span>★ {s.cleanupSub}</span>
         </div>
       </div>
     </div>

@@ -1,14 +1,20 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { motion } from 'motion/react';
 import { Dump, Ward, Constituency, LeaderboardEntry } from './types';
 import { wards, constituencies } from './wards_constituencies';
+import { clampToHyderabad } from './hyderabad-bounds';
 import StatsDashboard from './components/StatsDashboard';
 import MapContainer from './components/MapContainer';
 import Leaderboard from './components/Leaderboard';
 import ReportDrawer from './components/ReportDrawer';
 import DumpDetailDrawer from './components/DumpDetailDrawer';
+import HeroLanding from './components/HeroLanding';
+import LanguageToggle from './components/LanguageToggle';
+import { useLanguage } from './i18n/LanguageContext';
 import { Trash2, Sparkles, HelpCircle } from 'lucide-react';
 
 export default function App() {
+  const { t } = useLanguage();
   const [dumps, setDumps] = useState<Dump[]>([]);
   const [selectedDump, setSelectedDump] = useState<Dump | null>(null);
   
@@ -73,45 +79,35 @@ export default function App() {
       }
     } catch (err: any) {
       console.error(err);
-      setError(err.message || "Connection failure with Hyderabad Civic servers.");
+      setError(err.message || t.app.connectionError);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleRefreshDeviceHash = () => {
-    const newHash = 'citizen-' + Math.random().toString(36).substring(2, 11);
-    localStorage.setItem('cyber_kachra_device_hash', newHash);
-    setUserDeviceHash(newHash);
-    
-    setGlobalMessage({
-      text: "Simulated new citizen device. Ready to submit separate votes!",
-      type: 'info'
-    });
-    setTimeout(() => setGlobalMessage(null), 4000);
-  };
 
+  // Anonymous device hash for vote deduplication (not shown in UI)
   const handleRequestGeolocation = () => {
     if (!navigator.geolocation) {
-      showNotice("Geolocation is not supported by your browser.", "info");
+      showNotice(t.app.geolocationUnsupported, "info");
       // Fallback center of Hyderabad
-      setReportCoords({ lat: 17.3850, lng: 78.4867 });
+      setReportCoords(clampToHyderabad(17.3850, 78.4867));
       return;
     }
 
-    showNotice("Retrieving high-accuracy GPS coordinates...", "info");
+    showNotice(t.app.gpsRetrieving, "info");
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setReportCoords({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        });
-        showNotice("GPS location georeferenced successfully!", "success");
+        setReportCoords(clampToHyderabad(
+          position.coords.latitude,
+          position.coords.longitude,
+        ));
+        showNotice(t.app.gpsSuccess, "success");
       },
       (err) => {
         console.warn("Geolocation permission error, falling back to map center:", err);
-        showNotice("Could not determine GPS location automatically. Please tap on map to manually position pin.", "info");
-        setReportCoords({ lat: 17.3850, lng: 78.4867 });
+        showNotice(t.app.gpsFallback, "info");
+        setReportCoords(clampToHyderabad(17.3850, 78.4867));
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
@@ -136,13 +132,17 @@ export default function App() {
   };
 
   const handleUpdateReportCoords = useCallback((coords: { lat: number; lng: number }) => {
-    setReportCoords(coords);
+    setReportCoords(clampToHyderabad(coords.lat, coords.lng));
   }, []);
 
   const handleReportSubmit = async (data: {
     lat: number;
     lng: number;
     address_text: string;
+    citizen_text: string;
+    severity: string;
+    complaint_type: string;
+    waste_type: string;
     image_url: string;
     force_new?: boolean;
   }) => {
@@ -257,6 +257,15 @@ export default function App() {
     }
   };
 
+  const scrollToTracker = () => {
+    document.getElementById('tracker')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleReportFromHero = () => {
+    scrollToTracker();
+    setTimeout(() => handleReportModeActivate(), 400);
+  };
+
   return (
     <div className="min-h-screen bg-natural-bg text-natural-text font-sans flex flex-col antialiased">
       {/* Header bar */}
@@ -269,26 +278,27 @@ export default function App() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold tracking-tight uppercase font-mono text-natural-heading">
-                  CYBER-KACHRA
+                  {t.app.title}
                 </h1>
                 <span className="bg-natural-clay/10 text-natural-clay font-mono text-[9px] font-bold px-1.5 py-0.5 rounded-lg border border-natural-clay/20">
-                  HYD V1.0
+                  {t.app.version}
                 </span>
               </div>
               <p className="text-xs text-[#7A7872] font-medium mt-0.5">
-                Anonymous, zero-friction civic waste tracker for Greater Hyderabad
+                {t.app.tagline}
               </p>
             </div>
           </div>
 
           {/* Core Navigation, CTA and Info */}
-          <div className="flex items-center gap-4 w-full sm:w-auto justify-end">
+          <div className="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <LanguageToggle />
             <div className="text-right hidden md:block">
               <div className="text-[10px] text-[#A3A199] uppercase font-bold tracking-wider">
-                Authority Focus
+                {t.app.authorityFocus}
               </div>
               <div className="text-xs font-semibold text-natural-sage flex items-center justify-end gap-1">
-                <span>Elected MLAs & Municipal Wards</span>
+                <span>{t.app.authorityLabel}</span>
               </div>
             </div>
 
@@ -298,14 +308,21 @@ export default function App() {
               className="bg-natural-clay hover:opacity-90 disabled:opacity-50 text-white font-medium px-5 py-2.5 rounded-full text-xs tracking-tight shadow-sm cursor-pointer flex items-center gap-1.5 transition-all w-full sm:w-auto justify-center"
             >
               <Sparkles className="w-4 h-4 fill-current" />
-              <span>Snap Garbage Dump</span>
+              <span>{t.app.reportCta}</span>
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Body */}
-      <main className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6 overflow-hidden">
+      {/* Animated landing hero — first scroll */}
+      <HeroLanding
+        onReport={handleReportFromHero}
+        onExplore={scrollToTracker}
+        stats={overview}
+      />
+
+      {/* Main Body — live civic tracker */}
+      <main id="tracker" className="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 flex flex-col gap-6 overflow-hidden scroll-mt-4">
         
         {/* Global Notices / Alerts */}
         {globalMessage && (
@@ -327,6 +344,17 @@ export default function App() {
             <span>{error}</span>
           </div>
         )}
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          className="flex items-center gap-2 pb-1"
+        >
+          <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-[#A3A199]">{t.app.liveTracker}</span>
+          <div className="h-px flex-1 bg-natural-sand" />
+        </motion.div>
 
         {/* Stats Section */}
         <StatsDashboard
@@ -354,23 +382,9 @@ export default function App() {
             </div>
 
             {/* Helper Bar */}
-            <div className="bg-white border border-natural-sand rounded-2xl p-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-[11px] text-[#7A7872] font-medium">
-              <div className="flex items-center gap-1.5">
-                <HelpCircle className="w-4 h-4 text-[#A3A199]" />
-                <span>Geotag drifts are auto-merged within 40m to prevent duplicates.</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span>Citizen Device: </span>
-                <span className="font-mono bg-natural-ivory border border-natural-sand px-1.5 py-0.5 rounded-lg text-natural-text truncate max-w-[120px]" title={userDeviceHash}>
-                  {userDeviceHash}
-                </span>
-                <button
-                  onClick={handleRefreshDeviceHash}
-                  className="text-natural-clay hover:underline hover:text-natural-clay/80 cursor-pointer font-bold ml-1"
-                >
-                  Regen
-                </button>
-              </div>
+            <div className="bg-white border border-natural-sand rounded-2xl p-3 flex items-center gap-2 text-[11px] text-[#7A7872] font-medium">
+              <HelpCircle className="w-4 h-4 text-[#A3A199] shrink-0" />
+              <span>{t.app.mapHint}</span>
             </div>
           </div>
 
@@ -399,8 +413,6 @@ export default function App() {
                   setReportInitialAddress(`Additional report photo for ${selectedDump.address_text}`);
                   setReportMode(true);
                 }}
-                userDeviceHash={userDeviceHash}
-                onRefreshDeviceHash={handleRefreshDeviceHash}
               />
             ) : (
               <Leaderboard
@@ -418,12 +430,12 @@ export default function App() {
       <footer className="bg-white border-t border-natural-sand py-5 text-center text-[11px] text-[#A3A199] font-medium mt-auto">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row justify-between items-center gap-3">
           <div>
-            &copy; 2026 Greater Hyderabad Citizenry. Built with zero barrier & radical transparency.
+            {t.app.footer}
           </div>
           <div className="flex items-center gap-4 text-xs">
-            <span className="text-natural-sage font-bold">Total Anonymity Guarantee</span>
+            <span className="text-natural-sage font-bold">{t.app.anonymity}</span>
             <span className="text-natural-sand">•</span>
-            <span className="text-natural-sage font-bold">MLA Public Scoreboard</span>
+            <span className="text-natural-sage font-bold">{t.app.scoreboard}</span>
           </div>
         </div>
       </footer>

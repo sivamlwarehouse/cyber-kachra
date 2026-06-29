@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { Dump } from '../types';
-import { getWardForCoord, getConstituencyForCoord } from '../wards_constituencies';
+import { HYDERABAD_CENTER, HYDERABAD_LEAFLET_BOUNDS, clampToHyderabad } from '../hyderabad-bounds';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface MapContainerProps {
   dumps: Dump[];
@@ -20,6 +21,8 @@ export default function MapContainer({
   reportCoords,
   onUpdateReportCoords,
 }: MapContainerProps) {
+  const { t } = useLanguage();
+  const m = t.map;
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<{ [key: string]: L.Marker }>({});
@@ -29,12 +32,13 @@ export default function MapContainer({
   useEffect(() => {
     if (!mapContainerRef.current || mapRef.current) return;
 
-    // Centered in Greater Hyderabad
-    const defaultCenter: L.LatLngExpression = [17.3850, 78.4867];
     const map = L.map(mapContainerRef.current, {
       zoomControl: false,
       attributionControl: true,
-    }).setView(defaultCenter, 12);
+      maxBounds: HYDERABAD_LEAFLET_BOUNDS,
+      maxBoundsViscosity: 1.0,
+      minZoom: 11,
+    }).setView(HYDERABAD_CENTER, 12);
 
     // Add Premium Dark or Light tile layer
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
@@ -68,8 +72,8 @@ export default function MapContainer({
 
     const handleMapClick = (e: L.LeafletMouseEvent) => {
       if (reportMode) {
-        const { lat, lng } = e.latlng;
-        onUpdateReportCoords({ lat, lng });
+        const clamped = clampToHyderabad(e.latlng.lat, e.latlng.lng);
+        onUpdateReportCoords(clamped);
       }
     };
 
@@ -193,7 +197,7 @@ export default function MapContainer({
           .on('dragend', (event) => {
             const marker = event.target;
             const position = marker.getLatLng();
-            onUpdateReportCoords({ lat: position.lat, lng: position.lng });
+            onUpdateReportCoords(clampToHyderabad(position.lat, position.lng));
           });
       }
       
@@ -215,22 +219,26 @@ export default function MapContainer({
       <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-md px-4 py-2 rounded-[20px] border border-natural-sand/80 shadow-sm text-[11px] font-medium text-natural-text flex items-center gap-4">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-natural-clay inline-block animate-pulse"></span>
-          <span>Active Dump</span>
+          <span>{m.activeDump}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-yellow-500 inline-block"></span>
-          <span>Pending Verify</span>
+          <span>{m.pendingVerify}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-natural-sage inline-block"></span>
-          <span>Verified Clean</span>
+          <span>{m.verifiedClean}</span>
         </div>
+      </div>
+
+      <div className="absolute bottom-4 left-4 z-20 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-natural-sand/80 shadow-sm text-[10px] font-mono text-[#7A7872]">
+        {m.hyderabadOnly}
       </div>
 
       {reportMode && (
         <div className="absolute top-4 right-4 z-20 bg-natural-clay text-white px-4 py-2 rounded-full font-medium text-xs shadow-md animate-bounce flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-crosshair"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
-          <span>Tap or drag pin to position</span>
+          <span>{m.tapDragPin}</span>
         </div>
       )}
     </div>

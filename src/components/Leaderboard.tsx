@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { LeaderboardEntry } from '../types';
 import { Search, ShieldAlert, Award, ArrowUpRight, CheckCircle, Percent } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface LeaderboardProps {
   constituencies: LeaderboardEntry[];
@@ -15,6 +16,8 @@ export default function Leaderboard({
   zones,
   onSelectEntity,
 }: LeaderboardProps) {
+  const { t } = useLanguage();
+  const lb = t.leaderboard;
   const [filterType, setFilterType] = useState<'constituency' | 'ward' | 'zone'>('constituency');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -34,11 +37,9 @@ export default function Leaderboard({
         <div className="flex flex-col gap-1.5 mb-4">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-5 h-5 text-natural-clay" />
-            <h2 className="text-lg font-bold text-natural-heading tracking-tight font-serif italic">Public Shame Leaderboard</h2>
+            <h2 className="text-lg font-bold text-natural-heading tracking-tight font-serif italic">{lb.title}</h2>
           </div>
-          <p className="text-xs text-[#7A7872] font-medium">
-            Worst performing municipal areas ranked by active open waste dumps. Lower score is better.
-          </p>
+          <p className="text-xs text-[#7A7872] font-medium">{lb.subtitle}</p>
         </div>
 
         {/* Tab Switcher */}
@@ -51,7 +52,7 @@ export default function Leaderboard({
                 : 'text-[#A3A199] hover:text-natural-heading'
             }`}
           >
-            MLA Constituency
+            {lb.constituency}
           </button>
           <button
             onClick={() => { setFilterType('ward'); setSearchQuery(''); }}
@@ -61,7 +62,7 @@ export default function Leaderboard({
                 : 'text-[#A3A199] hover:text-natural-heading'
             }`}
           >
-            GHMC Ward
+            {lb.ward}
           </button>
           <button
             onClick={() => { setFilterType('zone'); setSearchQuery(''); }}
@@ -71,7 +72,7 @@ export default function Leaderboard({
                 : 'text-[#A3A199] hover:text-natural-heading'
             }`}
           >
-            GHMC Zone
+            {lb.zone}
           </button>
         </div>
       </div>
@@ -83,7 +84,7 @@ export default function Leaderboard({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder={`Search by ${filterType}...`}
+          placeholder={lb.search}
           className="text-xs text-natural-text w-full outline-none placeholder-[#A3A199] bg-transparent font-medium"
         />
         {searchQuery && (
@@ -100,7 +101,7 @@ export default function Leaderboard({
       <div className="flex-1 overflow-y-auto divide-y divide-natural-sand/30 max-h-[480px]">
         {filteredList.length === 0 ? (
           <div className="p-8 text-center text-[#A3A199] text-xs">
-            No regions matching your query.
+            {lb.noResults}
           </div>
         ) : (
           filteredList.map((entry, index) => {
@@ -137,7 +138,7 @@ export default function Leaderboard({
                         <button
                           onClick={() => onSelectEntity(filterType as 'constituency' | 'ward', entry.id)}
                           className="p-1 rounded-lg text-[#A3A199] hover:text-natural-sage hover:bg-natural-light-sage/40 transition-colors"
-                          title="Locate on map"
+                          title={lb.viewOnMap}
                         >
                           <ArrowUpRight className="w-3.5 h-3.5" />
                         </button>
@@ -156,7 +157,7 @@ export default function Leaderboard({
                   {/* Active Dumps */}
                   <div>
                     <div className="text-[10px] text-[#A3A199] font-medium uppercase tracking-wider font-mono">
-                      Active
+                      {lb.active}
                     </div>
                     <div
                       className={`text-sm font-bold font-mono ${
@@ -174,7 +175,7 @@ export default function Leaderboard({
                   {/* Cleaned Percentage */}
                   <div className="w-16">
                     <div className="text-[10px] text-[#A3A199] font-medium uppercase tracking-wider font-mono">
-                      Cleaned
+                      {lb.cleanRate}
                     </div>
                     <div className="flex items-center justify-end gap-0.5 text-xs font-bold font-mono text-natural-text">
                       <span>{entry.percentage_cleaned}</span>

@@ -7,3 +7,4 @@ data.json
 *.log
 .env*
 !.env.example
+supabase/.temp/

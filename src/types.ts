@@ -45,6 +45,10 @@ export interface CitizenReport {
   id: string;
   dump_id: string;
   image_url: string;
+  citizen_text: string;
+  severity: string;
+  complaint_type: string;
+  waste_type: string;
   device_hash: string;
   created_at: string;
 }

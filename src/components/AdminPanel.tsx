@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Dump, CitizenReport, VerificationLog } from '../types';
 import { wards, constituencies } from '../wards_constituencies';
+import AdminAnalytics from './AdminAnalytics';
+import LanguageToggle from './LanguageToggle';
+import { useLanguage } from '../i18n/LanguageContext';
 import { 
-  ShieldAlert, Trash2, CheckCircle, RefreshCw, Sparkles, MapPin, Search, X, 
-  Edit2, Save, ArrowLeft, Calendar, Vote, Database, Eye, AlertTriangle, 
-  BarChart2, Filter, Image as ImageIcon, Shield, MessageSquare
+  Trash2, CheckCircle, RefreshCw, MapPin, Search, X, 
+  Edit2, Save, ArrowLeft, Calendar, Vote, Database, AlertTriangle, 
+  BarChart2, Filter, Image as ImageIcon, Shield, MapPinned
 } from 'lucide-react';
+
+function hasImage(url?: string) {
+  return Boolean(url && url.trim().length > 0);
+}
 
 interface AdminPanelProps {
   onBack: () => void;
@@ -19,10 +26,12 @@ interface AdminData {
 }
 
 export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps) {
+  const { t } = useLanguage();
+  const tr = t.report;
   const [data, setData] = useState<AdminData>({ dumps: [], reports: [], verifications: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'overview' | 'dumps' | 'reports' | 'votes'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'dumps' | 'grievances' | 'votes'>('overview');
   
   // Search & Filter state for Dumps
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -117,8 +126,8 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
     }
   };
 
-  const handleDeleteReport = async (id: string) => {
-    if (!window.confirm('Remove this citizen photo report from the database?')) {
+  const handleDeleteGrievance = async (id: string) => {
+    if (!window.confirm('Delete this citizen grievance permanently? This removes their report text and photo from the system.')) {
       return;
     }
 
@@ -128,10 +137,10 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
       });
 
       if (!res.ok) {
-        throw new Error('Failed to delete report.');
+        throw new Error('Failed to delete grievance.');
       }
 
-      handleShowMessage('Citizen report and connected photo successfully removed.');
+      handleShowMessage('Citizen grievance deleted successfully.');
       await fetchAdminData();
       onRefreshParent();
     } catch (err: any) {
@@ -178,19 +187,6 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
     return matchesStatus && matchesWard && matchesConstituency && matchesSearch;
   });
 
-  // Overview metrics computation
-  const statsOverview = {
-    total: data.dumps.length,
-    active: data.dumps.filter(d => d.status === 'active').length,
-    pending: data.dumps.filter(d => d.status === 'pending_verification').length,
-    resolved: data.dumps.filter(d => d.status === 'resolved').length,
-    reports: data.reports.length,
-    votes: data.verifications.length,
-    avgConfidence: data.dumps.length > 0 
-      ? Math.round(data.dumps.reduce((sum, d) => sum + d.confidence_score, 0) / data.dumps.length) 
-      : 0,
-  };
-
   return (
     <div className="min-h-screen bg-natural-bg text-natural-text font-sans flex flex-col antialiased animate-fadeIn pb-12">
       {/* Admin Header */}
@@ -207,19 +203,20 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-lg font-bold tracking-tight uppercase font-mono text-natural-heading">
-                  Municipal Command Center
+                  Admin Dashboard
                 </h1>
                 <span className="bg-natural-clay text-white font-mono text-[9px] font-bold px-2 py-0.5 rounded-full border border-natural-clay/20 shadow-sm">
-                  ADMIN VIEW
+                  ANALYTICS
                 </span>
               </div>
               <p className="text-xs text-[#7A7872] font-medium mt-0.5">
-                Central tracking, audit trail, and database override console
+                Civic waste analytics, audit trail & municipal overrides
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
+            <LanguageToggle />
             <button
               onClick={fetchAdminData}
               disabled={loading}
@@ -267,7 +264,7 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
             }`}
           >
             <BarChart2 className="w-4 h-4" />
-            <span>Overview & Metrics</span>
+            <span>Analytics</span>
           </button>
           <button
             onClick={() => setActiveTab('dumps')}
@@ -281,15 +278,15 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
             <span>Garbage Sites ({data.dumps.length})</span>
           </button>
           <button
-            onClick={() => setActiveTab('reports')}
+            onClick={() => setActiveTab('grievances')}
             className={`py-3 px-5 border-b-2 font-medium text-xs transition-all flex items-center gap-2 cursor-pointer ${
-              activeTab === 'reports'
+              activeTab === 'grievances'
                 ? 'border-natural-clay text-natural-clay font-bold'
                 : 'border-transparent text-[#7A7872] hover:text-natural-heading'
             }`}
           >
             <ImageIcon className="w-4 h-4" />
-            <span>Citizen Photos ({data.reports.length})</span>
+            <span>Citizen Grievances ({data.reports.length})</span>
           </button>
           <button
             onClick={() => setActiveTab('votes')}
@@ -311,106 +308,13 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
           </div>
         ) : (
           <>
-            {/* TAB 1: OVERVIEW & METRICS */}
+            {/* TAB 1: ANALYTICS */}
             {activeTab === 'overview' && (
-              <div className="flex flex-col gap-6">
-                {/* Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-                  <div className="bg-white p-4 rounded-3xl border border-natural-sand shadow-sm flex flex-col">
-                    <span className="text-[10px] text-[#A3A199] font-mono font-bold uppercase tracking-wider">Total Sites</span>
-                    <span className="text-2xl font-bold text-natural-heading mt-1">{statsOverview.total}</span>
-                    <span className="text-[9px] text-[#7A7872] font-medium mt-1">Across all jurisdictions</span>
-                  </div>
-                  <div className="bg-white p-4 rounded-3xl border border-natural-sand shadow-sm flex flex-col">
-                    <span className="text-[10px] text-[#A3A199] font-mono font-bold uppercase tracking-wider">Active open</span>
-                    <span className="text-2xl font-bold text-natural-clay mt-1">{statsOverview.active}</span>
-                    <span className="text-[9px] text-natural-clay/80 font-mono font-bold flex items-center gap-1 mt-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-natural-clay inline-block animate-pulse"></span>
-                      Urgent cleanup
-                    </span>
-                  </div>
-                  <div className="bg-white p-4 rounded-3xl border border-natural-sand shadow-sm flex flex-col">
-                    <span className="text-[10px] text-[#A3A199] font-mono font-bold uppercase tracking-wider">Pending verify</span>
-                    <span className="text-2xl font-bold text-yellow-600 mt-1">{statsOverview.pending}</span>
-                    <span className="text-[9px] text-[#7A7872] font-medium mt-1">Citizen swept notifications</span>
-                  </div>
-                  <div className="bg-white p-4 rounded-3xl border border-natural-sand shadow-sm flex flex-col">
-                    <span className="text-[10px] text-[#A3A199] font-mono font-bold uppercase tracking-wider">Verified Cleaned</span>
-                    <span className="text-2xl font-bold text-natural-sage mt-1">{statsOverview.resolved}</span>
-                    <span className="text-[9px] text-natural-sage/80 font-mono font-bold flex items-center gap-1 mt-1 font-medium">
-                      ✓ Auto-resolved
-                    </span>
-                  </div>
-                  <div className="bg-white p-4 rounded-3xl border border-natural-sand shadow-sm flex flex-col">
-                    <span className="text-[10px] text-[#A3A199] font-mono font-bold uppercase tracking-wider">Citizen Evidence</span>
-                    <span className="text-2xl font-bold text-natural-heading mt-1">{statsOverview.reports}</span>
-                    <span className="text-[9px] text-[#7A7872] font-medium mt-1">Uploaded geo-photos</span>
-                  </div>
-                  <div className="bg-white p-4 rounded-3xl border border-natural-sand shadow-sm flex flex-col">
-                    <span className="text-[10px] text-[#A3A199] font-mono font-bold uppercase tracking-wider">Verification Votes</span>
-                    <span className="text-2xl font-bold text-natural-heading mt-1">{statsOverview.votes}</span>
-                    <span className="text-[9px] text-[#7A7872] font-medium mt-1">Anti-sabotage logs</span>
-                  </div>
-                </div>
-
-                {/* Extended info panel */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
-                  <div className="lg:col-span-8 bg-white border border-natural-sand rounded-3xl p-6 shadow-sm flex flex-col gap-4">
-                    <div>
-                      <h3 className="text-sm font-bold text-natural-heading flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-natural-sage" />
-                        Anti-Sabotage Resolution Framework
-                      </h3>
-                      <p className="text-[11px] text-[#7A7872] font-medium mt-1 leading-relaxed">
-                        Cyber-Kachra uses a strict <strong>3-device independent verification system</strong>. A garbage site is automatically created with 50 confidence points. It gains 10 priority points whenever citizens report it "Still Exists". Once citizens mark it "Cleaned", it shifts to <i>Pending Verification</i>. It is only moved to <i>Resolved (Swept Clean)</i> and removed from the active map after <strong>3 separate devices</strong> submit "Mark Cleaned" verification votes within a 12-hour period.
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-2">
-                      <div className="bg-natural-ivory border border-natural-sand/60 p-4 rounded-2xl">
-                        <span className="text-[9px] font-mono text-[#A3A199] font-bold uppercase block">Avg priority score</span>
-                        <span className="text-lg font-extrabold text-natural-heading mt-1 block">{statsOverview.avgConfidence} / 100</span>
-                        <p className="text-[10px] text-[#7A7872] mt-1">Higher confidence requires faster municipal team dispatch.</p>
-                      </div>
-                      <div className="bg-natural-ivory border border-natural-sand/60 p-4 rounded-2xl">
-                        <span className="text-[9px] font-mono text-[#A3A199] font-bold uppercase block">Resolution Rate</span>
-                        <span className="text-lg font-extrabold text-natural-sage mt-1 block">
-                          {statsOverview.total > 0 ? Math.round((statsOverview.resolved / statsOverview.total) * 100) : 100}%
-                        </span>
-                        <p className="text-[10px] text-[#7A7872] mt-1">Percentage of all open reported sites successfully resolved.</p>
-                      </div>
-                      <div className="bg-natural-ivory border border-natural-sand/60 p-4 rounded-2xl">
-                        <span className="text-[9px] font-mono text-[#A3A199] font-bold uppercase block">Photo-to-Site Ratio</span>
-                        <span className="text-lg font-extrabold text-natural-heading mt-1 block">
-                          {statsOverview.total > 0 ? (statsOverview.reports / statsOverview.total).toFixed(1) : 0}
-                        </span>
-                        <p className="text-[10px] text-[#7A7872] mt-1">Average number of anonymous supporting photos per dump site.</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="lg:col-span-4 bg-white border border-natural-sand rounded-3xl p-6 shadow-sm flex flex-col gap-4">
-                    <h3 className="text-sm font-bold text-natural-heading flex items-center gap-1.5">
-                      <ShieldAlert className="w-4.5 h-4.5 text-natural-clay" />
-                      Administrative Powers
-                    </h3>
-                    <div className="flex-1 flex flex-col justify-between gap-3 text-xs text-[#7A7872] leading-relaxed">
-                      <p>
-                        This command dashboard bypasses community voting filters. As a municipal representative or systems auditor, you have the authority to:
-                      </p>
-                      <ul className="list-disc pl-4 space-y-1">
-                        <li><strong>Instantly override</strong> site statuses manually.</li>
-                        <li><strong>Correct and format</strong> landmarks & address texts.</li>
-                        <li><strong>Alter Priority / Confidence Scores</strong> (0 to 100).</li>
-                        <li><strong>Purge spam or double-reports</strong> from the system entirely.</li>
-                      </ul>
-                      <div className="bg-natural-light-clay text-natural-clay/90 p-3 rounded-2xl text-[10px] border border-natural-clay/15 leading-tight font-mono">
-                        * All manual override actions are executed immediately in the active database. Use with professional caution.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <AdminAnalytics
+                dumps={data.dumps}
+                reports={data.reports}
+                verifications={data.verifications}
+              />
             )}
 
             {/* TAB 2: GARBAGE SITES LIST */}
@@ -511,8 +415,8 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
                           isEditing ? 'border-natural-clay ring-1 ring-natural-clay/20' : 'border-natural-sand hover:border-natural-sand/90'
                         }`}>
                           {/* Image Column */}
-                          <div className="w-full lg:w-48 shrink-0 relative aspect-[4/3] lg:aspect-square bg-slate-900 rounded-2xl overflow-hidden self-center">
-                            {dump.photos && dump.photos.length > 0 ? (
+                          <div className="w-full lg:w-48 shrink-0 relative aspect-[4/3] lg:aspect-square bg-natural-ivory rounded-2xl overflow-hidden self-center border border-natural-sand">
+                            {dump.photos && dump.photos.length > 0 && hasImage(dump.photos[0]) ? (
                               <>
                                 <img
                                   src={dump.photos[0]}
@@ -528,9 +432,10 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
                                 )}
                               </>
                             ) : (
-                              <div className="w-full h-full flex flex-col items-center justify-center text-slate-500 gap-1">
-                                <ImageIcon className="w-5 h-5" />
-                                <span className="text-[10px] font-mono">No Image</span>
+                              <div className="w-full h-full flex flex-col items-center justify-center text-[#A3A199] gap-1.5 p-3">
+                                <MapPinned className="w-6 h-6 text-natural-sage" />
+                                <span className="text-[10px] font-mono font-bold text-natural-heading">Location only</span>
+                                <span className="text-[9px] text-center leading-tight">No photo attached</span>
                               </div>
                             )}
                             <div className="absolute top-2 left-2 bg-black/50 text-white font-mono text-[8px] px-1.5 py-0.5 rounded-lg uppercase tracking-wide">
@@ -612,7 +517,7 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
                                 <div className="bg-natural-ivory/60 border border-natural-sand/40 p-2 rounded-xl">
                                   <span className="text-[8px] font-mono text-[#A3A199] font-bold uppercase block">Ward Jurisdiction</span>
                                   <span className="text-xs font-bold text-natural-heading">Ward {dumpWard?.ward_number || 'N/A'}: {dumpWard?.name || 'Banjara Hills'}</span>
-                                  <span className="text-[9px] text-[#7A7872] block font-medium">Zone: {dumpWard?.zone || 'N/A'}</span>
+                                  <span className="text-[9px] text-[#7A7872] block font-medium">{dumpWard?.zone || 'N/A'}</span>
                                 </div>
                               </div>
                             </div>
@@ -699,69 +604,96 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
               </div>
             )}
 
-            {/* TAB 3: CITIZEN PHOTO UPLOADS */}
-            {activeTab === 'reports' && (
+            {/* TAB 3: CITIZEN GRIEVANCES */}
+            {activeTab === 'grievances' && (
               <div className="flex flex-col gap-4">
                 <div className="bg-white border border-natural-sand rounded-3xl p-5 shadow-sm">
                   <h3 className="text-sm font-bold text-natural-heading flex items-center gap-2 mb-1">
                     <ImageIcon className="w-4.5 h-4.5 text-natural-clay" />
-                    Live Photo Upload Database
+                    Citizen Grievance Reports
                   </h3>
                   <p className="text-xs text-[#7A7872] leading-relaxed">
-                    Below are all individual photo uploads connected to open dumps. Removing an upload entry here will remove the associated photo thumbnail from the citizen view.
+                    Each entry is a citizen-submitted grievance with description text and optional photo. Delete spam or invalid reports individually.
                   </p>
                 </div>
 
                 {data.reports.length === 0 ? (
                   <div className="bg-white border border-natural-sand rounded-3xl p-12 text-center text-[#A3A199] text-xs">
-                    No individual citizen photo uploads currently tracked in the database.
+                    No citizen grievances recorded yet.
                   </div>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div className="flex flex-col gap-3">
                     {data.reports.map(report => {
                       const matchedDump = data.dumps.find(d => d.id === report.dump_id);
 
                       return (
-                        <div key={report.id} className="bg-white border border-natural-sand rounded-3xl p-4 shadow-sm flex gap-4 hover:border-natural-sand/90 transition-all">
-                          {/* Photo Thumbnail */}
-                          <div className="w-20 h-20 bg-slate-900 rounded-2xl overflow-hidden shrink-0">
-                            <img
-                              src={report.image_url}
-                              alt="Citizen Upload"
-                              className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-all"
-                              onClick={() => setSelectedImage(report.image_url)}
-                              referrerPolicy="no-referrer"
-                            />
-                          </div>
+                        <div key={report.id} className="bg-white border border-natural-sand rounded-3xl p-4 shadow-sm hover:border-natural-sand/90 transition-all">
+                          <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="w-full sm:w-24 h-24 bg-natural-ivory border border-natural-sand rounded-2xl overflow-hidden shrink-0 flex items-center justify-center">
+                              {hasImage(report.image_url) ? (
+                                <img
+                                  src={report.image_url}
+                                  alt="Grievance"
+                                  className="w-full h-full object-cover cursor-pointer hover:scale-105 transition-all"
+                                  onClick={() => setSelectedImage(report.image_url)}
+                                  referrerPolicy="no-referrer"
+                                />
+                              ) : (
+                                <MapPinned className="w-6 h-6 text-natural-sage" />
+                              )}
+                            </div>
 
-                          {/* Report Metadata */}
-                          <div className="flex-1 flex flex-col justify-between overflow-hidden gap-2">
-                            <div>
-                              <div className="flex items-center justify-between gap-2">
+                            <div className="flex-1 min-w-0 flex flex-col gap-2">
+                              <div className="flex flex-wrap items-center justify-between gap-2">
                                 <span className="text-[9px] font-mono text-natural-clay font-bold bg-natural-light-clay px-1.5 py-0.5 rounded border border-natural-clay/10">
                                   {report.id}
                                 </span>
                                 <span className="text-[9px] text-[#A3A199] font-mono">
-                                  {new Date(report.created_at).toLocaleDateString()}
+                                  {new Date(report.created_at).toLocaleString()}
                                 </span>
                               </div>
 
-                              <p className="text-[10px] text-natural-heading font-semibold mt-1.5 truncate">
-                                Dump: {matchedDump ? matchedDump.address_text : `Site ID: ${report.dump_id}`}
+                              {report.citizen_text ? (
+                                <p className="text-sm text-natural-heading leading-relaxed bg-natural-ivory/80 border border-natural-sand/50 rounded-xl px-3 py-2.5">
+                                  &ldquo;{report.citizen_text}&rdquo;
+                                </p>
+                              ) : (
+                                <p className="text-xs text-[#A3A199] italic">No description</p>
+                              )}
+
+                              <div className="flex flex-wrap gap-1.5">
+                                {report.severity && (
+                                  <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full bg-natural-light-clay text-natural-clay border border-natural-clay/15">
+                                    {tr.severity[report.severity as keyof typeof tr.severity]?.label || report.severity}
+                                  </span>
+                                )}
+                                {report.complaint_type && (
+                                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-natural-ivory text-[#7A7872] border border-natural-sand">
+                                    {tr.complaint[report.complaint_type as keyof typeof tr.complaint] || report.complaint_type}
+                                  </span>
+                                )}
+                                {report.waste_type && (
+                                  <span className="text-[9px] font-mono px-2 py-0.5 rounded-full bg-natural-light-sage/50 text-natural-sage border border-natural-sage/15">
+                                    {tr.waste[report.waste_type as keyof typeof tr.waste] || report.waste_type}
+                                  </span>
+                                )}
+                              </div>
+
+                              <p className="text-[11px] text-[#7A7872] font-medium truncate" title={matchedDump?.address_text}>
+                                <MapPin className="w-3 h-3 inline mr-1 text-[#A3A199]" />
+                                {matchedDump ? matchedDump.address_text : `Site: ${report.dump_id}`}
                               </p>
 
-                              <p className="text-[9px] font-mono text-[#7A7872] mt-1 truncate" title={report.device_hash}>
-                                device: {report.device_hash}
-                              </p>
+                              <div className="flex justify-end pt-1">
+                                <button
+                                  onClick={() => handleDeleteGrievance(report.id)}
+                                  className="bg-natural-light-clay text-natural-clay border border-natural-clay/15 hover:bg-natural-light-clay/80 font-bold px-4 py-2 rounded-full text-[10px] flex items-center gap-1.5 cursor-pointer transition-all"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <span>Delete Grievance</span>
+                                </button>
+                              </div>
                             </div>
-
-                            <button
-                              onClick={() => handleDeleteReport(report.id)}
-                              className="text-[9px] text-natural-clay font-bold hover:underline flex items-center gap-1 cursor-pointer w-max"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                              <span>Remove photo</span>
-                            </button>
                           </div>
                         </div>
                       );
@@ -798,8 +730,7 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
                             <th className="p-4">Timestamp</th>
                             <th className="p-4">Associated Site</th>
                             <th className="p-4">Vote Type</th>
-                            <th className="p-4">Device Reference ID</th>
-                            <th className="p-4 text-right">Database Actions</th>
+                            <th className="p-4 text-right">Actions</th>
                           </tr>
                         </thead>
                         <tbody className="divide-y divide-natural-sand/30 text-xs">
@@ -825,9 +756,6 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
                                   }`}>
                                     {log.vote_type === 'still_exists' ? 'Still Exists' : 'Swept Clean'}
                                   </span>
-                                </td>
-                                <td className="p-4 font-mono text-[#7A7872] text-[11px] truncate max-w-[120px]" title={log.device_hash}>
-                                  {log.device_hash}
                                 </td>
                                 <td className="p-4 text-right">
                                   <button

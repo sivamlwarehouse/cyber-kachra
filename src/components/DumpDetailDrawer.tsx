@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Dump, Ward, Constituency } from '../types';
-import { MapPin, Shield, Calendar, Users, ThumbsUp, CheckCircle, RefreshCw, ChevronLeft, ChevronRight, Image as ImageIcon, Camera } from 'lucide-react';
+import { MapPin, Shield, Calendar, Users, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight, Image as ImageIcon, Camera } from 'lucide-react';
+import { useLanguage } from '../i18n/LanguageContext';
 
 interface DumpDetailDrawerProps {
   dump: Dump;
@@ -9,8 +10,6 @@ interface DumpDetailDrawerProps {
   onVote: (voteType: 'still_exists' | 'cleaned') => Promise<void>;
   onClose: () => void;
   onAddPhoto: () => void;
-  userDeviceHash: string;
-  onRefreshDeviceHash: () => void;
 }
 
 export default function DumpDetailDrawer({
@@ -20,9 +19,9 @@ export default function DumpDetailDrawer({
   onVote,
   onClose,
   onAddPhoto,
-  userDeviceHash,
-  onRefreshDeviceHash,
 }: DumpDetailDrawerProps) {
+  const { t } = useLanguage();
+  const d = t.dumpDetail;
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
   const [voting, setVoting] = useState(false);
   const [voteError, setVoteError] = useState<string | null>(null);
@@ -35,14 +34,12 @@ export default function DumpDetailDrawer({
     try {
       await onVote(voteType);
       setVoteSuccess(
-        voteType === 'still_exists'
-          ? "Successfully confirmed dump still exists. Priority score increased!"
-          : "Thank you for the cleanup report! Dump status set to Pending Verification."
+        voteType === 'still_exists' ? d.voteStillSuccess : d.voteCleanSuccess,
       );
       // clear success after 3 seconds
       setTimeout(() => setVoteSuccess(null), 4000);
     } catch (err: any) {
-      setVoteError(err.message || "Failed to submit feedback.");
+      setVoteError(err.message || d.voteError);
       setTimeout(() => setVoteError(null), 4000);
     } finally {
       setVoting(false);
@@ -131,7 +128,7 @@ export default function DumpDetailDrawer({
         {dump.status !== 'resolved' && (
           <div className="absolute top-3 left-3 bg-natural-clay text-white font-mono font-bold text-xs px-2.5 py-1.5 rounded-full shadow-md flex items-center gap-1.5 animate-pulse">
             <Shield className="w-3.5 h-3.5" />
-            <span>Priority Score: {dump.confidence_score}</span>
+            <span>{d.priority}: {dump.confidence_score}</span>
           </div>
         )}
       </div>
@@ -188,7 +185,7 @@ export default function DumpDetailDrawer({
             {ward && (
               <div className="text-[10px] mt-1.5 flex flex-col gap-0.5">
                 <div className="text-[#7A7872] font-medium">
-                  Zone: <span className="text-natural-heading font-bold">{ward.zone} Zone</span>
+                  Zone: <span className="text-natural-heading font-bold">{ward.zone}</span>
                 </div>
                 <div className="text-[#A3A199] font-mono text-[9px] uppercase">
                   Agency: <span className="font-bold text-[#7A7872]">GHMC</span>
@@ -201,21 +198,17 @@ export default function DumpDetailDrawer({
         {/* Verification Logic Feedback / Alerts */}
         {dump.status === 'pending_verification' && (
           <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 text-xs rounded-2xl p-3.5 leading-relaxed flex flex-col gap-1.5">
-            <span className="font-bold">Cleanup Pending Community Verification</span>
-            <span>
-              This dump has been marked cleaned! To prevent false reports, it will disappear only when 3 independent citizen devices verify it has been swept clean.
-            </span>
+            <span className="font-bold">{d.pendingTitle}</span>
+            <span>{d.pendingBody}</span>
           </div>
         )}
 
         {dump.status === 'resolved' && (
           <div className="bg-natural-light-sage/60 border border-natural-sage/20 text-natural-text text-xs rounded-2xl p-3.5 leading-relaxed flex flex-col gap-1">
             <span className="font-bold flex items-center gap-1 text-natural-sage">
-              ✓ Resolved and Swept Clean
+              ✓ {d.resolvedTitle}
             </span>
-            <span>
-              Verified clean by {dump.photos.length > 1 ? dump.photos.length : 3} independent community audits. Thank you for making Hyderabad cleaner!
-            </span>
+            <span>{d.resolvedBody}</span>
           </div>
         )}
 
@@ -231,28 +224,6 @@ export default function DumpDetailDrawer({
           </div>
         )}
 
-        {/* Interactive Citizen device hash simulator for testing */}
-        {dump.status !== 'resolved' && (
-          <div className="bg-natural-ivory border border-natural-sand/60 rounded-[18px] p-3 flex flex-col gap-1.5">
-            <div className="flex items-center justify-between text-[10px] text-[#A3A199] font-mono font-bold uppercase">
-              <span>Your Anonymous Citizen ID</span>
-              <button
-                onClick={onRefreshDeviceHash}
-                className="text-natural-clay hover:opacity-90 flex items-center gap-1 cursor-pointer font-sans normal-case font-bold"
-              >
-                <RefreshCw className="w-3 h-3 animate-spin-once" />
-                <span>Simulate New Device</span>
-              </button>
-            </div>
-            <div className="text-xs font-mono text-[#7A7872] truncate bg-white border border-natural-sand/40 p-2 rounded-xl">
-              {userDeviceHash}
-            </div>
-            <span className="text-[9px] text-[#A3A199] leading-tight">
-              * Generates a new device hash to test anti-sabotage (needs 3 unique devices voting cleaned to resolve).
-            </span>
-          </div>
-        )}
-
         {/* Action Controls */}
         {dump.status !== 'resolved' && (
           <div className="grid grid-cols-2 gap-3 mt-auto">
@@ -262,7 +233,7 @@ export default function DumpDetailDrawer({
               className="bg-white hover:bg-natural-light-clay/10 text-natural-clay border border-natural-clay/20 font-bold py-3 px-3 rounded-[20px] text-xs flex flex-col items-center justify-center gap-1 transition-all cursor-pointer shadow-sm disabled:opacity-40"
             >
               <ThumbsUp className="w-4 h-4 text-natural-clay" />
-              <span>Still Exists</span>
+              <span>{d.stillExists}</span>
               <span className="text-[9px] text-natural-clay/80 font-normal font-mono">+10 Score</span>
             </button>
 
@@ -272,7 +243,7 @@ export default function DumpDetailDrawer({
               className="bg-natural-sage hover:opacity-90 text-white font-bold py-3 px-3 rounded-[20px] text-xs flex flex-col items-center justify-center gap-1 transition-all cursor-pointer shadow-md shadow-natural-sage/10 disabled:opacity-40"
             >
               <CheckCircle className="w-4 h-4 text-white" />
-              <span>Mark Cleaned</span>
+              <span>{d.markCleaned}</span>
               <span className="text-[9px] text-white/80 font-normal">Pending Verification</span>
             </button>
           </div>

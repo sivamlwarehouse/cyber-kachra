@@ -1,0 +1,2333 @@
+{
+  "wards": [
+    {
+      "id": 1,
+      "ward_number": 1,
+      "name": "Kapra",
+      "zone": "East Zone",
+      "center": [
+        17.49597434868421,
+        78.5564238407895
+      ],
+      "bounds": {
+        "minLng": 78.5341361,
+        "minLat": 17.4796865,
+        "maxLng": 78.5861924,
+        "maxLat": 17.507949
+      }
+    },
+    {
+      "id": 2,
+      "ward_number": 2,
+      "name": "Dr A S Rao Nagar",
+      "zone": "East Zone",
+      "center": [
+        17.479729733870965,
+        78.5684120016129
+      ],
+      "bounds": {
+        "minLng": 78.5515383,
+        "minLat": 17.4611503,
+        "maxLng": 78.5883727,
+        "maxLat": 17.5004182
+      }
+    },
+    {
+      "id": 5,
+      "ward_number": 5,
+      "name": "Mallapur",
+      "zone": "East Zone",
+      "center": [
+        17.444897413333326,
+        78.57144244999999
+      ],
+      "bounds": {
+        "minLng": 78.5485982,
+        "minLat": 17.4268744,
+        "maxLng": 78.5951507,
+        "maxLat": 17.4629847
+      }
+    },
+    {
+      "id": 6,
+      "ward_number": 6,
+      "name": "Nacharam",
+      "zone": "East Zone",
+      "center": [
+        17.427613702777776,
+        78.55409349166668
+      ],
+      "bounds": {
+        "minLng": 78.5358738,
+        "minLat": 17.4151022,
+        "maxLng": 78.5696911,
+        "maxLat": 17.4415323
+      }
+    },
+    {
+      "id": 7,
+      "ward_number": 7,
+      "name": "Chilka Nagar",
+      "zone": "East Zone",
+      "center": [
+        17.41312768076923,
+        78.55909995
+      ],
+      "bounds": {
+        "minLng": 78.5454869,
+        "minLat": 17.4014864,
+        "maxLng": 78.5670519,
+        "maxLat": 17.4238854
+      }
+    },
+    {
+      "id": 8,
+      "ward_number": 8,
+      "name": "Habsiguda",
+      "zone": "East Zone",
+      "center": [
+        17.399723183720926,
+        78.53583816511626
+      ],
+      "bounds": {
+        "minLng": 78.5251827,
+        "minLat": 17.3763099,
+        "maxLng": 78.5601157,
+        "maxLat": 17.4254848
+      }
+    },
+    {
+      "id": 9,
+      "ward_number": 9,
+      "name": "Ramanthapur",
+      "zone": "East Zone",
+      "center": [
+        17.388810996153847,
+        78.53689168076923
+      ],
+      "bounds": {
+        "minLng": 78.5251827,
+        "minLat": 17.3758287,
+        "maxLng": 78.5463023,
+        "maxLat": 17.4010769
+      }
+    },
+    {
+      "id": 10,
+      "ward_number": 10,
+      "name": "Uppal",
+      "zone": "East Zone",
+      "center": [
+        17.395888324999998,
+        78.5598826638889
+      ],
+      "bounds": {
+        "minLng": 78.5427404,
+        "minLat": 17.3804362,
+        "maxLng": 78.581939,
+        "maxLat": 17.4116829
+      }
+    },
+    {
+      "id": 12,
+      "ward_number": 12,
+      "name": "Mansoorabad",
+      "zone": "East Zone",
+      "center": [
+        17.343088341176472,
+        78.58263183235293
+      ],
+      "bounds": {
+        "minLng": 78.5510243,
+        "minLat": 17.3244204,
+        "maxLng": 78.6212303,
+        "maxLat": 17.3556972
+      }
+    },
+    {
+      "id": 14,
+      "ward_number": 14,
+      "name": "BN Reddy Nagar",
+      "zone": "East Zone",
+      "center": [
+        17.31926061714286,
+        78.5712440742857
+      ],
+      "bounds": {
+        "minLng": 78.549478,
+        "minLat": 17.3023576,
+        "maxLng": 78.593123,
+        "maxLat": 17.3296438
+      }
+    },
+    {
+      "id": 15,
+      "ward_number": 15,
+      "name": "Vanasthalipuram",
+      "zone": "East Zone",
+      "center": [
+        17.335746710000002,
+        78.55919879000001
+      ],
+      "bounds": {
+        "minLng": 78.5466539,
+        "minLat": 17.3251937,
+        "maxLng": 78.5753775,
+        "maxLat": 17.3465216
+      }
+    },
+    {
+      "id": 16,
+      "ward_number": 16,
+      "name": "Hasthinapuram",
+      "zone": "Unknown Zone",
+      "center": [
+        17.330020024691354,
+        78.52919922098766
+      ],
+      "bounds": {
+        "minLng": 78.4936399,
+        "minLat": 17.3162476,
+        "maxLng": 78.5584474,
+        "maxLat": 17.3422095
+      }
+    },
+    {
+      "id": 17,
+      "ward_number": 17,
+      "name": "Champapet",
+      "zone": "South Zone",
+      "center": [
+        17.3439267516129,
+        78.52385083548387
+      ],
+      "bounds": {
+        "minLng": 78.506949,
+        "minLat": 17.3371407,
+        "maxLng": 78.5466539,
+        "maxLat": 17.3509866
+      }
+    },
+    {
+      "id": 18,
+      "ward_number": 18,
+      "name": "Lingojiguda",
+      "zone": "East Zone",
+      "center": [
+        17.349721567741934,
+        78.53857904193548
+      ],
+      "bounds": {
+        "minLng": 78.5248661,
+        "minLat": 17.3422095,
+        "maxLng": 78.5540999,
+        "maxLat": 17.3556357
+      }
+    },
+    {
+      "id": 19,
+      "ward_number": 19,
+      "name": "Saroornagar",
+      "zone": "East Zone",
+      "center": [
+        17.361914661538464,
+        78.53870249615387
+      ],
+      "bounds": {
+        "minLng": 78.5302574,
+        "minLat": 17.350454,
+        "maxLng": 78.5464096,
+        "maxLat": 17.3726237
+      }
+    },
+    {
+      "id": 20,
+      "ward_number": 20,
+      "name": "RK Puram",
+      "zone": "East Zone",
+      "center": [
+        17.361203895454544,
+        78.54998793181818
+      ],
+      "bounds": {
+        "minLng": 78.5427082,
+        "minLat": 17.3510787,
+        "maxLng": 78.5572028,
+        "maxLat": 17.3736374
+      }
+    },
+    {
+      "id": 21,
+      "ward_number": 21,
+      "name": "Kothapet",
+      "zone": "East Zone",
+      "center": [
+        17.36933389166667,
+        78.5486552
+      ],
+      "bounds": {
+        "minLng": 78.5382557,
+        "minLat": 17.3505758,
+        "maxLng": 78.5583186,
+        "maxLat": 17.3837229
+      }
+    },
+    {
+      "id": 22,
+      "ward_number": 22,
+      "name": "Chaitanyapuri",
+      "zone": "East Zone",
+      "center": [
+        17.37388807666667,
+        78.53542841000002
+      ],
+      "bounds": {
+        "minLng": 78.5234929,
+        "minLat": 17.3681097,
+        "maxLng": 78.5432017,
+        "maxLat": 17.3837229
+      }
+    },
+    {
+      "id": 23,
+      "ward_number": 23,
+      "name": "Gaddiannaram",
+      "zone": "East Zone",
+      "center": [
+        17.363320696153846,
+        78.52943833846153
+      ],
+      "bounds": {
+        "minLng": 78.5221839,
+        "minLat": 17.3565727,
+        "maxLng": 78.5382226,
+        "maxLat": 17.3685842
+      }
+    },
+    {
+      "id": 24,
+      "ward_number": 24,
+      "name": "Saidabad",
+      "zone": "South Zone",
+      "center": [
+        17.362575165384612,
+        78.5150691846154
+      ],
+      "bounds": {
+        "minLng": 78.5037437,
+        "minLat": 17.3565126,
+        "maxLng": 78.5242573,
+        "maxLat": 17.3699787
+      }
+    },
+    {
+      "id": 25,
+      "ward_number": 25,
+      "name": "Moosarambagh",
+      "zone": "South Zone",
+      "center": [
+        17.37224777878788,
+        78.51827369393936
+      ],
+      "bounds": {
+        "minLng": 78.507346,
+        "minLat": 17.3620256,
+        "maxLng": 78.5251827,
+        "maxLat": 17.3799858
+      }
+    },
+    {
+      "id": 26,
+      "ward_number": 26,
+      "name": "Old Malakpet",
+      "zone": "South Zone",
+      "center": [
+        17.379131895454545,
+        78.50660540000001
+      ],
+      "bounds": {
+        "minLng": 78.4948522,
+        "minLat": 17.3727824,
+        "maxLng": 78.5169911,
+        "maxLat": 17.3860266
+      }
+    },
+    {
+      "id": 27,
+      "ward_number": 27,
+      "name": "Akbarbagh",
+      "zone": "South Zone",
+      "center": [
+        17.36915170416667,
+        78.50415050416666
+      ],
+      "bounds": {
+        "minLng": 78.4961987,
+        "minLat": 17.3618618,
+        "maxLng": 78.514087,
+        "maxLat": 17.3753013
+      }
+    },
+    {
+      "id": 28,
+      "ward_number": 28,
+      "name": "Azampura",
+      "zone": "South Zone",
+      "center": [
+        17.372776471428573,
+        78.49248850357141
+      ],
+      "bounds": {
+        "minLng": 78.4869933,
+        "minLat": 17.3668384,
+        "maxLng": 78.4985252,
+        "maxLat": 17.3807281
+      }
+    },
+    {
+      "id": 29,
+      "ward_number": 29,
+      "name": "Chawni",
+      "zone": "South Zone",
+      "center": [
+        17.36543230454545,
+        78.49749155454546
+      ],
+      "bounds": {
+        "minLng": 78.4898928,
+        "minLat": 17.3580934,
+        "maxLng": 78.5039851,
+        "maxLat": 17.3713848
+      }
+    },
+    {
+      "id": 30,
+      "ward_number": 30,
+      "name": "Dabeerpura",
+      "zone": "South Zone",
+      "center": [
+        17.370043024999998,
+        78.48621766944444
+      ],
+      "bounds": {
+        "minLng": 78.4802437,
+        "minLat": 17.3598547,
+        "maxLng": 78.4925294,
+        "maxLat": 17.3807365
+      }
+    },
+    {
+      "id": 32,
+      "ward_number": 32,
+      "name": "Patthergatti",
+      "zone": "South Zone",
+      "center": [
+        17.364453962499997,
+        78.48138002187497
+      ],
+      "bounds": {
+        "minLng": 78.4738031,
+        "minLat": 17.3545554,
+        "maxLng": 78.4897399,
+        "maxLat": 17.3736879
+      }
+    },
+    {
+      "id": 33,
+      "ward_number": 33,
+      "name": "Moghalpura",
+      "zone": "South Zone",
+      "center": [
+        17.352867309523806,
+        78.4777431095238
+      ],
+      "bounds": {
+        "minLng": 78.4724967,
+        "minLat": 17.348068,
+        "maxLng": 78.4837961,
+        "maxLat": 17.3585235
+      }
+    },
+    {
+      "id": 34,
+      "ward_number": 34,
+      "name": "Talab Chanchalam",
+      "zone": "South Zone",
+      "center": [
+        17.35183640625,
+        78.48591969375
+      ],
+      "bounds": {
+        "minLng": 78.480202,
+        "minLat": 17.3460095,
+        "maxLng": 78.490609,
+        "maxLat": 17.3570372
+      }
+    },
+    {
+      "id": 35,
+      "ward_number": 35,
+      "name": "Gowlipura",
+      "zone": "South Zone",
+      "center": [
+        17.345487832258065,
+        78.47833028387095
+      ],
+      "bounds": {
+        "minLng": 78.4700954,
+        "minLat": 17.3372534,
+        "maxLng": 78.4865535,
+        "maxLat": 17.3508208
+      }
+    },
+    {
+      "id": 36,
+      "ward_number": 36,
+      "name": "Lalithabagh",
+      "zone": "South Zone",
+      "center": [
+        17.34654152083333,
+        78.49115555416667
+      ],
+      "bounds": {
+        "minLng": 78.483603,
+        "minLat": 17.3391403,
+        "maxLng": 78.4957186,
+        "maxLat": 17.3541611
+      }
+    },
+    {
+      "id": 37,
+      "ward_number": 37,
+      "name": "Rein Bazar",
+      "zone": "South Zone",
+      "center": [
+        17.35818921363636,
+        78.48991395454544
+      ],
+      "bounds": {
+        "minLng": 78.4831953,
+        "minLat": 17.3538437,
+        "maxLng": 78.4962845,
+        "maxLat": 17.3620051
+      }
+    },
+    {
+      "id": 37,
+      "ward_number": 37,
+      "name": "Kurmaguda",
+      "zone": "South Zone",
+      "center": [
+        17.355405685714288,
+        78.49811049285712
+      ],
+      "bounds": {
+        "minLng": 78.4916067,
+        "minLat": 17.3502467,
+        "maxLng": 78.5066633,
+        "maxLat": 17.3622867
+      }
+    },
+    {
+      "id": 38,
+      "ward_number": 38,
+      "name": "IS Sadan",
+      "zone": "South Zone",
+      "center": [
+        17.351873623333333,
+        78.51699558666668
+      ],
+      "bounds": {
+        "minLng": 78.5054818,
+        "minLat": 17.343818,
+        "maxLng": 78.5262823,
+        "maxLat": 17.3594579
+      }
+    },
+    {
+      "id": 39,
+      "ward_number": 39,
+      "name": "Santhosh Nagar",
+      "zone": "South Zone",
+      "center": [
+        17.350144709375,
+        78.50093803125002
+      ],
+      "bounds": {
+        "minLng": 78.4930619,
+        "minLat": 17.3421999,
+        "maxLng": 78.508569,
+        "maxLat": 17.355116
+      }
+    },
+    {
+      "id": 40,
+      "ward_number": 40,
+      "name": "Riyasat Nagar",
+      "zone": "South Zone",
+      "center": [
+        17.343157380769235,
+        78.49621562692309
+      ],
+      "bounds": {
+        "minLng": 78.4908404,
+        "minLat": 17.3340836,
+        "maxLng": 78.5019493,
+        "maxLat": 17.3504105
+      }
+    },
+    {
+      "id": 41,
+      "ward_number": 41,
+      "name": "Kanchanbagh",
+      "zone": "South Zone",
+      "center": [
+        17.3248148734375,
+        78.4958615734375
+      ],
+      "bounds": {
+        "minLng": 78.483088,
+        "minLat": 17.3125187,
+        "maxLng": 78.5097814,
+        "maxLat": 17.3441662
+      }
+    },
+    {
+      "id": 42,
+      "ward_number": 42,
+      "name": "Barkas",
+      "zone": "South Zone",
+      "center": [
+        17.317317357142862,
+        78.47456607857143
+      ],
+      "bounds": {
+        "minLng": 78.4668231,
+        "minLat": 17.308483,
+        "maxLng": 78.4831631,
+        "maxLat": 17.3228329
+      }
+    },
+    {
+      "id": 43,
+      "ward_number": 43,
+      "name": "Chandrayangutta",
+      "zone": "South Zone",
+      "center": [
+        17.32210741551724,
+        78.4795832672414
+      ],
+      "bounds": {
+        "minLng": 78.4658575,
+        "minLat": 17.3140244,
+        "maxLng": 78.4925831,
+        "maxLat": 17.3327548
+      }
+    },
+    {
+      "id": 44,
+      "ward_number": 44,
+      "name": "Uppuguda",
+      "zone": "South Zone",
+      "center": [
+        17.335889521739134,
+        78.48524237826088
+      ],
+      "bounds": {
+        "minLng": 78.4798203,
+        "minLat": 17.3278767,
+        "maxLng": 78.4930337,
+        "maxLat": 17.3424047
+      }
+    },
+    {
+      "id": 45,
+      "ward_number": 45,
+      "name": "Jangammet",
+      "zone": "South Zone",
+      "center": [
+        17.335783211764706,
+        78.47455406470588
+      ],
+      "bounds": {
+        "minLng": 78.4679761,
+        "minLat": 17.3265201,
+        "maxLng": 78.4810683,
+        "maxLat": 17.3459475
+      }
+    },
+    {
+      "id": 46,
+      "ward_number": 46,
+      "name": "Falaknuma",
+      "zone": "South Zone",
+      "center": [
+        17.32774988648648,
+        78.46572911351353
+      ],
+      "bounds": {
+        "minLng": 78.4569204,
+        "minLat": 17.3198422,
+        "maxLng": 78.4758246,
+        "maxLat": 17.3342116
+      }
+    },
+    {
+      "id": 47,
+      "ward_number": 47,
+      "name": "Nawab Saheb Kunta",
+      "zone": "South Zone",
+      "center": [
+        17.33479302666667,
+        78.46170671333333
+      ],
+      "bounds": {
+        "minLng": 78.4547317,
+        "minLat": 17.3288245,
+        "maxLng": 78.4686095,
+        "maxLat": 17.340336
+      }
+    },
+    {
+      "id": 48,
+      "ward_number": 48,
+      "name": "Shalibanda",
+      "zone": "South Zone",
+      "center": [
+        17.345834152499997,
+        78.46972116000002
+      ],
+      "bounds": {
+        "minLng": 78.4642053,
+        "minLat": 17.3366603,
+        "maxLng": 78.4758823,
+        "maxLat": 17.3554105
+      }
+    },
+    {
+      "id": 49,
+      "ward_number": 49,
+      "name": "Ghansi Bazar",
+      "zone": "South Zone",
+      "center": [
+        17.362634484615384,
+        78.46955611153845
+      ],
+      "bounds": {
+        "minLng": 78.4582508,
+        "minLat": 17.3538642,
+        "maxLng": 78.4768117,
+        "maxLat": 17.3713131
+      }
+    },
+    {
+      "id": 50,
+      "ward_number": 50,
+      "name": "Begum Bazar",
+      "zone": "Central Zone",
+      "center": [
+        17.375170939393943,
+        78.47403842727273
+      ],
+      "bounds": {
+        "minLng": 78.4623599,
+        "minLat": 17.3696972,
+        "maxLng": 78.4818241,
+        "maxLat": 17.3802929
+      }
+    },
+    {
+      "id": 51,
+      "ward_number": 51,
+      "name": "Goshamahal",
+      "zone": "Central Zone",
+      "center": [
+        17.37600961538461,
+        78.46533138461538
+      ],
+      "bounds": {
+        "minLng": 78.4577466,
+        "minLat": 17.3674886,
+        "maxLng": 78.4719086,
+        "maxLat": 17.3830369
+      }
+    },
+    {
+      "id": 52,
+      "ward_number": 52,
+      "name": "Puranapool",
+      "zone": "South Zone",
+      "center": [
+        17.36084558,
+        78.46318289500002
+      ],
+      "bounds": {
+        "minLng": 78.4556436,
+        "minLat": 17.3541406,
+        "maxLng": 78.4688294,
+        "maxLat": 17.3674886
+      }
+    },
+    {
+      "id": 53,
+      "ward_number": 53,
+      "name": "Doodh Bowli",
+      "zone": "South Zone",
+      "center": [
+        17.355080515999997,
+        78.45945977199999
+      ],
+      "bounds": {
+        "minLng": 78.4544635,
+        "minLat": 17.3468083,
+        "maxLng": 78.4656215,
+        "maxLat": 17.3637306
+      }
+    },
+    {
+      "id": 54,
+      "ward_number": 54,
+      "name": "Jahanuma",
+      "zone": "South Zone",
+      "center": [
+        17.34088940333333,
+        78.45761862333335
+      ],
+      "bounds": {
+        "minLng": 78.4491781,
+        "minLat": 17.3329007,
+        "maxLng": 78.4658897,
+        "maxLat": 17.352113
+      }
+    },
+    {
+      "id": 55,
+      "ward_number": 55,
+      "name": "Ramnaspura",
+      "zone": "South Zone",
+      "center": [
+        17.347802812676054,
+        78.44739213380282
+      ],
+      "bounds": {
+        "minLng": 78.4373188,
+        "minLat": 17.3359885,
+        "maxLng": 78.4597636,
+        "maxLat": 17.359015
+      }
+    },
+    {
+      "id": 56,
+      "ward_number": 56,
+      "name": "Kishanbagh",
+      "zone": "South Zone",
+      "center": [
+        17.357686937142855,
+        78.4445735685714
+      ],
+      "bounds": {
+        "minLng": 78.4364606,
+        "minLat": 17.3522359,
+        "maxLng": 78.4560111,
+        "maxLat": 17.3698897
+      }
+    },
+    {
+      "id": 57,
+      "ward_number": 57,
+      "name": "Suleman Nagar",
+      "zone": "South Zone",
+      "center": [
+        17.344469910000004,
+        78.43136945333335
+      ],
+      "bounds": {
+        "minLng": 78.4156895,
+        "minLat": 17.329631,
+        "maxLng": 78.4433498,
+        "maxLat": 17.3536285
+      }
+    },
+    {
+      "id": 58,
+      "ward_number": 58,
+      "name": "Shastripuram",
+      "zone": "South Zone",
+      "center": [
+        17.329846025882347,
+        78.44934504470588
+      ],
+      "bounds": {
+        "minLng": 78.4320617,
+        "minLat": 17.3022142,
+        "maxLng": 78.4668542,
+        "maxLat": 17.3445553
+      }
+    },
+    {
+      "id": 59,
+      "ward_number": 59,
+      "name": "Mailardevpally",
+      "zone": "South Zone",
+      "center": [
+        17.313180651063828,
+        78.42701933617022
+      ],
+      "bounds": {
+        "minLng": 78.4060121,
+        "minLat": 17.2916377,
+        "maxLng": 78.4564268,
+        "maxLat": 17.3295619
+      }
+    },
+    {
+      "id": 60,
+      "ward_number": 60,
+      "name": "Rajendra Nagar",
+      "zone": "South Zone",
+      "center": [
+        17.335545222093025,
+        78.41069536511628
+      ],
+      "bounds": {
+        "minLng": 78.3751559,
+        "minLat": 17.3002884,
+        "maxLng": 78.4363076,
+        "maxLat": 17.3720811
+      }
+    },
+    {
+      "id": 61,
+      "ward_number": 61,
+      "name": "Attapur",
+      "zone": "South Zone",
+      "center": [
+        17.360512420000003,
+        78.42890561000002
+      ],
+      "bounds": {
+        "minLng": 78.4122133,
+        "minLat": 17.3492557,
+        "maxLng": 78.4401191,
+        "maxLat": 17.3747843
+      }
+    },
+    {
+      "id": 62,
+      "ward_number": 62,
+      "name": "Ziaguda",
+      "zone": "Central Zone",
+      "center": [
+        17.368576479310345,
+        78.44888841379307
+      ],
+      "bounds": {
+        "minLng": 78.4400761,
+        "minLat": 17.3598956,
+        "maxLng": 78.4582508,
+        "maxLat": 17.3728285
+      }
+    },
+    {
+      "id": 63,
+      "ward_number": 63,
+      "name": "Mangalhat",
+      "zone": "Central Zone",
+      "center": [
+        17.377071633333333,
+        78.45667375666663
+      ],
+      "bounds": {
+        "minLng": 78.4530929,
+        "minLat": 17.3686508,
+        "maxLng": 78.4635401,
+        "maxLat": 17.3855352
+      }
+    },
+    {
+      "id": 64,
+      "ward_number": 64,
+      "name": "Dattatreya Nagar",
+      "zone": "Central Zone",
+      "center": [
+        17.37644002083333,
+        78.45234413333331
+      ],
+      "bounds": {
+        "minLng": 78.4476346,
+        "minLat": 17.3709547,
+        "maxLng": 78.4571028,
+        "maxLat": 17.3815011
+      }
+    },
+    {
+      "id": 65,
+      "ward_number": 65,
+      "name": "Karwan",
+      "zone": "Central Zone",
+      "center": [
+        17.374575181481486,
+        78.44088763888888
+      ],
+      "bounds": {
+        "minLng": 78.4256244,
+        "minLat": 17.3692652,
+        "maxLng": 78.4536267,
+        "maxLat": 17.3831905
+      }
+    },
+    {
+      "id": 66,
+      "ward_number": 66,
+      "name": "Langar Houz",
+      "zone": "Central Zone",
+      "center": [
+        17.38125754444444,
+        78.39744347777778
+      ],
+      "bounds": {
+        "minLng": 78.3753491,
+        "minLat": 17.3710776,
+        "maxLng": 78.4270362,
+        "maxLat": 17.3939308
+      }
+    },
+    {
+      "id": 67,
+      "ward_number": 67,
+      "name": "Golconda",
+      "zone": "Central Zone",
+      "center": [
+        17.387453313157902,
+        78.41504172894739
+      ],
+      "bounds": {
+        "minLng": 78.3990598,
+        "minLat": 17.3772622,
+        "maxLng": 78.4259034,
+        "maxLat": 17.3965722
+      }
+    },
+    {
+      "id": 68,
+      "ward_number": 68,
+      "name": "Tolichowki",
+      "zone": "Central Zone",
+      "center": [
+        17.392873803030305,
+        78.40939168484849
+      ],
+      "bounds": {
+        "minLng": 78.3959914,
+        "minLat": 17.3851052,
+        "maxLng": 78.4193159,
+        "maxLat": 17.3996641
+      }
+    },
+    {
+      "id": 69,
+      "ward_number": 69,
+      "name": "Nanal Nagar",
+      "zone": "Central Zone",
+      "center": [
+        17.396528297058826,
+        78.42570857647058
+      ],
+      "bounds": {
+        "minLng": 78.4155177,
+        "minLat": 17.384798,
+        "maxLng": 78.4434772,
+        "maxLat": 17.40841
+      }
+    },
+    {
+      "id": 70,
+      "ward_number": 70,
+      "name": "Mehdipatnam",
+      "zone": "Central Zone",
+      "center": [
+        17.39151219230769,
+        78.43803366923076
+      ],
+      "bounds": {
+        "minLng": 78.426826,
+        "minLat": 17.3863953,
+        "maxLng": 78.4473986,
+        "maxLat": 17.3958146
+      }
+    },
+    {
+      "id": 71,
+      "ward_number": 71,
+      "name": "Gudimalkapur",
+      "zone": "Central Zone",
+      "center": [
+        17.383090211363637,
+        78.43551941136364
+      ],
+      "bounds": {
+        "minLng": 78.4247447,
+        "minLat": 17.375757,
+        "maxLng": 78.4477956,
+        "maxLat": 17.3939001
+      }
+    },
+    {
+      "id": 72,
+      "ward_number": 72,
+      "name": "Asif Nagar",
+      "zone": "Central Zone",
+      "center": [
+        17.384044232142852,
+        78.4460486
+      ],
+      "bounds": {
+        "minLng": 78.435157,
+        "minLat": 17.3799039,
+        "maxLng": 78.4555793,
+        "maxLat": 17.3878082
+      }
+    },
+    {
+      "id": 73,
+      "ward_number": 73,
+      "name": "Vijay Nagar Colony",
+      "zone": "Central Zone",
+      "center": [
+        17.395536735000004,
+        78.450989715
+      ],
+      "bounds": {
+        "minLng": 78.4395437,
+        "minLat": 17.3859945,
+        "maxLng": 78.4596563,
+        "maxLat": 17.4040459
+      }
+    },
+    {
+      "id": 74,
+      "ward_number": 74,
+      "name": "Ahmed Nagar",
+      "zone": "Central Zone",
+      "center": [
+        17.4027429,
+        78.44289912500001
+      ],
+      "bounds": {
+        "minLng": 78.42762,
+        "minLat": 17.3965722,
+        "maxLng": 78.4540129,
+        "maxLat": 17.4071835
+      }
+    },
+    {
+      "id": 75,
+      "ward_number": 75,
+      "name": "Red Hills",
+      "zone": "Central Zone",
+      "center": [
+        17.399714044680852,
+        78.46024309361702
+      ],
+      "bounds": {
+        "minLng": 78.4513338,
+        "minLat": 17.3908388,
+        "maxLng": 78.4709644,
+        "maxLat": 17.4093962
+      }
+    },
+    {
+      "id": 76,
+      "ward_number": 76,
+      "name": "Mallepally",
+      "zone": "Central Zone",
+      "center": [
+        17.38901682272727,
+        78.45924495454545
+      ],
+      "bounds": {
+        "minLng": 78.4532619,
+        "minLat": 17.383508,
+        "maxLng": 78.4657717,
+        "maxLat": 17.3947498
+      }
+    },
+    {
+      "id": 77,
+      "ward_number": 77,
+      "name": "Jambagh",
+      "zone": "Central Zone",
+      "center": [
+        17.385581326666664,
+        78.47163806333333
+      ],
+      "bounds": {
+        "minLng": 78.4617162,
+        "minLat": 17.3786546,
+        "maxLng": 78.4844613,
+        "maxLat": 17.3922516
+      }
+    },
+    {
+      "id": 78,
+      "ward_number": 78,
+      "name": "Gunfoundry",
+      "zone": "Central Zone",
+      "center": [
+        17.394852800000002,
+        78.47855957454544
+      ],
+      "bounds": {
+        "minLng": 78.4672764,
+        "minLat": 17.3786751,
+        "maxLng": 78.4918427,
+        "maxLat": 17.4087334
+      }
+    },
+    {
+      "id": 79,
+      "ward_number": 79,
+      "name": "Himayath Nagar",
+      "zone": "Central Zone",
+      "center": [
+        17.39904017142857,
+        78.48416064285712
+      ],
+      "bounds": {
+        "minLng": 78.4755349,
+        "minLat": 17.3902449,
+        "maxLng": 78.4945464,
+        "maxLat": 17.4066871
+      }
+    },
+    {
+      "id": 80,
+      "ward_number": 80,
+      "name": "Kachiguda",
+      "zone": "Central Zone",
+      "center": [
+        17.388125177272727,
+        78.49317672727274
+      ],
+      "bounds": {
+        "minLng": 78.4883237,
+        "minLat": 17.3809047,
+        "maxLng": 78.503792,
+        "maxLat": 17.3988041
+      }
+    },
+    {
+      "id": 81,
+      "ward_number": 81,
+      "name": "Nallakunta",
+      "zone": "Central Zone",
+      "center": [
+        17.39842356333333,
+        78.50822081333334
+      ],
+      "bounds": {
+        "minLng": 78.4972528,
+        "minLat": 17.3893644,
+        "maxLng": 78.5154086,
+        "maxLat": 17.4055165
+      }
+    },
+    {
+      "id": 82,
+      "ward_number": 82,
+      "name": "Golnaka",
+      "zone": "Central Zone",
+      "center": [
+        17.386050631034482,
+        78.50464231724139
+      ],
+      "bounds": {
+        "minLng": 78.4916631,
+        "minLat": 17.3798628,
+        "maxLng": 78.5182357,
+        "maxLat": 17.3937761
+      }
+    },
+    {
+      "id": 83,
+      "ward_number": 83,
+      "name": "Amberpet",
+      "zone": "Central Zone",
+      "center": [
+        17.385774357142854,
+        78.52316846190476
+      ],
+      "bounds": {
+        "minLng": 78.5162647,
+        "minLat": 17.3763099,
+        "maxLng": 78.5294419,
+        "maxLat": 17.3961872
+      }
+    },
+    {
+      "id": 84,
+      "ward_number": 84,
+      "name": "Bagh Amberpet",
+      "zone": "Central Zone",
+      "center": [
+        17.397473113043475,
+        78.5193196478261
+      ],
+      "bounds": {
+        "minLng": 78.5108328,
+        "minLat": 17.3912688,
+        "maxLng": 78.5288971,
+        "maxLat": 17.4054586
+      }
+    },
+    {
+      "id": 85,
+      "ward_number": 85,
+      "name": "Adikmet",
+      "zone": "Central Zone",
+      "center": [
+        17.407569272,
+        78.511608036
+      ],
+      "bounds": {
+        "minLng": 78.5026091,
+        "minLat": 17.3991061,
+        "maxLng": 78.5178924,
+        "maxLat": 17.4115396
+      }
+    },
+    {
+      "id": 86,
+      "ward_number": 86,
+      "name": "Musheerabad",
+      "zone": "Central Zone",
+      "center": [
+        17.415344519444446,
+        78.50807891666666
+      ],
+      "bounds": {
+        "minLng": 78.5012269,
+        "minLat": 17.4100655,
+        "maxLng": 78.5140541,
+        "maxLat": 17.4211419
+      }
+    },
+    {
+      "id": 87,
+      "ward_number": 87,
+      "name": "Ramnagar",
+      "zone": "Central Zone",
+      "center": [
+        17.40701384814815,
+        78.50029493333332
+      ],
+      "bounds": {
+        "minLng": 78.4945464,
+        "minLat": 17.3956123,
+        "maxLng": 78.5071938,
+        "maxLat": 17.4159416
+      }
+    },
+    {
+      "id": 88,
+      "ward_number": 88,
+      "name": "Bholakpur",
+      "zone": "Central Zone",
+      "center": [
+        17.418604659090906,
+        78.49404595909091
+      ],
+      "bounds": {
+        "minLng": 78.4880937,
+        "minLat": 17.4139351,
+        "maxLng": 78.5017944,
+        "maxLat": 17.4233735
+      }
+    },
+    {
+      "id": 89,
+      "ward_number": 89,
+      "name": "Gandhinagar",
+      "zone": "Central Zone",
+      "center": [
+        17.407853733333337,
+        78.49330110476191
+      ],
+      "bounds": {
+        "minLng": 78.4871972,
+        "minLat": 17.3988041,
+        "maxLng": 78.4977865,
+        "maxLat": 17.41555
+      }
+    },
+    {
+      "id": 90,
+      "ward_number": 90,
+      "name": "Kavadiguda",
+      "zone": "Central Zone",
+      "center": [
+        17.415398712121213,
+        78.48580816060604
+      ],
+      "bounds": {
+        "minLng": 78.4754517,
+        "minLat": 17.4027712,
+        "maxLng": 78.4945464,
+        "maxLat": 17.425431
+      }
+    },
+    {
+      "id": 91,
+      "ward_number": 91,
+      "name": "Khairatabad",
+      "zone": "Central Zone",
+      "center": [
+        17.422202724999984,
+        78.46718420178571
+      ],
+      "bounds": {
+        "minLng": 78.4480154,
+        "minLat": 17.4026446,
+        "maxLng": 78.4866526,
+        "maxLat": 17.4376837
+      }
+    },
+    {
+      "id": 92,
+      "ward_number": 92,
+      "name": "Venkateshwara Colony",
+      "zone": "Central Zone",
+      "center": [
+        17.42187744318182,
+        78.4376689
+      ],
+      "bounds": {
+        "minLng": 78.4109849,
+        "minLat": 17.4127476,
+        "maxLng": 78.4524303,
+        "maxLat": 17.4301397
+      }
+    },
+    {
+      "id": 93,
+      "ward_number": 93,
+      "name": "Banjara Hills",
+      "zone": "Central Zone",
+      "center": [
+        17.410420397916663,
+        78.44029512291665
+      ],
+      "bounds": {
+        "minLng": 78.4191257,
+        "minLat": 17.403452,
+        "maxLng": 78.4605547,
+        "maxLat": 17.4159416
+      }
+    },
+    {
+      "id": 94,
+      "ward_number": 94,
+      "name": "Shaikpet",
+      "zone": "Central Zone",
+      "center": [
+        17.403884302222227,
+        78.3993172311111
+      ],
+      "bounds": {
+        "minLng": 78.3869255,
+        "minLat": 17.3922824,
+        "maxLng": 78.4178238,
+        "maxLat": 17.4139505
+      }
+    },
+    {
+      "id": 95,
+      "ward_number": 95,
+      "name": "Jubilee Hills",
+      "zone": "Central Zone",
+      "center": [
+        17.4266283025,
+        78.41177457250001
+      ],
+      "bounds": {
+        "minLng": 78.393352,
+        "minLat": 17.4070301,
+        "maxLng": 78.4400064,
+        "maxLat": 17.4458619
+      }
+    },
+    {
+      "id": 96,
+      "ward_number": 96,
+      "name": "Yousufguda",
+      "zone": "Central Zone",
+      "center": [
+        17.436074804878047,
+        78.4252797
+      ],
+      "bounds": {
+        "minLng": 78.4120631,
+        "minLat": 17.4296854,
+        "maxLng": 78.4406085,
+        "maxLat": 17.4458619
+      }
+    },
+    {
+      "id": 97,
+      "ward_number": 97,
+      "name": "Somajiguda",
+      "zone": "Central Zone",
+      "center": [
+        17.430184960000002,
+        78.45029183454547
+      ],
+      "bounds": {
+        "minLng": 78.4318216,
+        "minLat": 17.4186992,
+        "maxLng": 78.4653291,
+        "maxLat": 17.4393777
+      }
+    },
+    {
+      "id": 98,
+      "ward_number": 98,
+      "name": "Ameerpet",
+      "zone": "Central Zone",
+      "center": [
+        17.440716614634148,
+        78.45077962682927
+      ],
+      "bounds": {
+        "minLng": 78.4382743,
+        "minLat": 17.4302444,
+        "maxLng": 78.4646344,
+        "maxLat": 17.4502374
+      }
+    },
+    {
+      "id": 99,
+      "ward_number": 99,
+      "name": "Vengal Rao Nagar",
+      "zone": "Central Zone",
+      "center": [
+        17.441433579166667,
+        78.43367532500001
+      ],
+      "bounds": {
+        "minLng": 78.4235215,
+        "minLat": 17.4351656,
+        "maxLng": 78.4428093,
+        "maxLat": 17.4501095
+      }
+    },
+    {
+      "id": 100,
+      "ward_number": 100,
+      "name": "Sanath Nagar",
+      "zone": "Central Zone",
+      "center": [
+        17.452997183333334,
+        78.4429812125
+      ],
+      "bounds": {
+        "minLng": 78.4312516,
+        "minLat": 17.4453143,
+        "maxLng": 78.4510839,
+        "maxLat": 17.4621506
+      }
+    },
+    {
+      "id": 101,
+      "ward_number": 101,
+      "name": "Erragadda",
+      "zone": "West Zone",
+      "center": [
+        17.45258142285714,
+        78.42662707142857
+      ],
+      "bounds": {
+        "minLng": 78.4182649,
+        "minLat": 17.4459335,
+        "maxLng": 78.4381154,
+        "maxLat": 17.461488
+      }
+    },
+    {
+      "id": 102,
+      "ward_number": 102,
+      "name": "Rahmath Nagar",
+      "zone": "Central Zone",
+      "center": [
+        17.44606317272727,
+        78.41914244545454
+      ],
+      "bounds": {
+        "minLng": 78.4120631,
+        "minLat": 17.4389324,
+        "maxLng": 78.4247687,
+        "maxLat": 17.4509999
+      }
+    },
+    {
+      "id": 103,
+      "ward_number": 103,
+      "name": "Borabanda",
+      "zone": "Central Zone",
+      "center": [
+        17.450269725,
+        78.412003825
+      ],
+      "bounds": {
+        "minLng": 78.4043974,
+        "minLat": 17.44578,
+        "maxLng": 78.4184361,
+        "maxLat": 17.4554316
+      }
+    },
+    {
+      "id": 104,
+      "ward_number": 104,
+      "name": "Kondapur",
+      "zone": "West Zone",
+      "center": [
+        17.44232368734178,
+        78.37926989367088
+      ],
+      "bounds": {
+        "minLng": 78.347438,
+        "minLat": 17.4112197,
+        "maxLng": 78.3992529,
+        "maxLat": 17.4823983
+      }
+    },
+    {
+      "id": 105,
+      "ward_number": 105,
+      "name": "Gachibowli",
+      "zone": "West Zone",
+      "center": [
+        17.438258168867936,
+        78.34694833962261
+      ],
+      "bounds": {
+        "minLng": 78.2717512,
+        "minLat": 17.4095525,
+        "maxLng": 78.3949491,
+        "maxLat": 17.4807496
+      }
+    },
+    {
+      "id": 106,
+      "ward_number": 106,
+      "name": "Serilingampally",
+      "zone": "West Zone",
+      "center": [
+        17.474354413793105,
+        78.33328742873562
+      ],
+      "bounds": {
+        "minLng": 78.3107827,
+        "minLat": 17.4384912,
+        "maxLng": 78.363888,
+        "maxLat": 17.4932784
+      }
+    },
+    {
+      "id": 107,
+      "ward_number": 107,
+      "name": "Madhapur",
+      "zone": "West Zone",
+      "center": [
+        17.46757523414634,
+        78.37949555365851
+      ],
+      "bounds": {
+        "minLng": 78.3581078,
+        "minLat": 17.438523,
+        "maxLng": 78.4066933,
+        "maxLat": 17.4965452
+      }
+    },
+    {
+      "id": 108,
+      "ward_number": 108,
+      "name": "Miyapur",
+      "zone": "West Zone",
+      "center": [
+        17.509062920588235,
+        78.35815460882353
+      ],
+      "bounds": {
+        "minLng": 78.3415532,
+        "minLat": 17.4939206,
+        "maxLng": 78.375256,
+        "maxLat": 17.5213074
+      }
+    },
+    {
+      "id": 109,
+      "ward_number": 109,
+      "name": "Hafeezpet",
+      "zone": "West Zone",
+      "center": [
+        17.489425102272726,
+        78.34394053863636
+      ],
+      "bounds": {
+        "minLng": 78.3245373,
+        "minLat": 17.4823139,
+        "maxLng": 78.363778,
+        "maxLat": 17.4958852
+      }
+    },
+    {
+      "id": 110,
+      "ward_number": 110,
+      "name": "Chandanagar",
+      "zone": "West Zone",
+      "center": [
+        17.499584831343288,
+        78.32696930597017
+      ],
+      "bounds": {
+        "minLng": 78.3081436,
+        "minLat": 17.4846803,
+        "maxLng": 78.3490634,
+        "maxLat": 17.5182214
+      }
+    },
+    {
+      "id": 111,
+      "ward_number": 111,
+      "name": "Bharati Nagar",
+      "zone": "Unknown Zone",
+      "center": [
+        17.490512421951223,
+        78.29610182439023
+      ],
+      "bounds": {
+        "minLng": 78.2807423,
+        "minLat": 17.4780224,
+        "maxLng": 78.3128402,
+        "maxLat": 17.5118613
+      }
+    },
+    {
+      "id": 112,
+      "ward_number": 112,
+      "name": "Ramachandrapuram",
+      "zone": "West Zone",
+      "center": [
+        17.508953360000003,
+        78.29944803800002
+      ],
+      "bounds": {
+        "minLng": 78.2811714,
+        "minLat": 17.4932784,
+        "maxLng": 78.3169627,
+        "maxLat": 17.52436
+      }
+    },
+    {
+      "id": 114,
+      "ward_number": 114,
+      "name": "KPHB Colony",
+      "zone": "West Zone",
+      "center": [
+        17.487175974999996,
+        78.38346155500003
+      ],
+      "bounds": {
+        "minLng": 78.3656797,
+        "minLat": 17.4697137,
+        "maxLng": 78.3972694,
+        "maxLat": 17.4993642
+      }
+    },
+    {
+      "id": 115,
+      "ward_number": 115,
+      "name": "Balaji Nagar",
+      "zone": "West Zone",
+      "center": [
+        17.475074211363633,
+        78.4065452909091
+      ],
+      "bounds": {
+        "minLng": 78.3853537,
+        "minLat": 17.4593259,
+        "maxLng": 78.4275717,
+        "maxLat": 17.4958162
+      }
+    },
+    {
+      "id": 116,
+      "ward_number": 116,
+      "name": "Allapur",
+      "zone": "West Zone",
+      "center": [
+        17.460514852777774,
+        78.40157428888888
+      ],
+      "bounds": {
+        "minLng": 78.3764112,
+        "minLat": 17.4504831,
+        "maxLng": 78.4198308,
+        "maxLat": 17.4768927
+      }
+    },
+    {
+      "id": 117,
+      "ward_number": 117,
+      "name": "Moosapet",
+      "zone": "West Zone",
+      "center": [
+        17.459983039534883,
+        78.42403944186049
+      ],
+      "bounds": {
+        "minLng": 78.4149599,
+        "minLat": 17.4503142,
+        "maxLng": 78.4315574,
+        "maxLat": 17.4697112
+      }
+    },
+    {
+      "id": 118,
+      "ward_number": 118,
+      "name": "Fateh Nagar",
+      "zone": "Central Zone",
+      "center": [
+        17.460098199999997,
+        78.44592419772728
+      ],
+      "bounds": {
+        "minLng": 78.4236095,
+        "minLat": 17.4474728,
+        "maxLng": 78.462691,
+        "maxLat": 17.4757097
+      }
+    },
+    {
+      "id": 119,
+      "ward_number": 119,
+      "name": "Old Bowenpally",
+      "zone": "West Zone",
+      "center": [
+        17.480067864444443,
+        78.48722359999998
+      ],
+      "bounds": {
+        "minLng": 78.4751195,
+        "minLat": 17.4693516,
+        "maxLng": 78.4969728,
+        "maxLat": 17.4902085
+      }
+    },
+    {
+      "id": 120,
+      "ward_number": 120,
+      "name": "Balanagar",
+      "zone": "West Zone",
+      "center": [
+        17.480343045454536,
+        78.44241754772725
+      ],
+      "bounds": {
+        "minLng": 78.4253132,
+        "minLat": 17.4620227,
+        "maxLng": 78.4649617,
+        "maxLat": 17.4909019
+      }
+    },
+    {
+      "id": 121,
+      "ward_number": 121,
+      "name": "Kukatpally",
+      "zone": "West Zone",
+      "center": [
+        17.487222918750003,
+        78.42394407083337
+      ],
+      "bounds": {
+        "minLng": 78.4124869,
+        "minLat": 17.4732022,
+        "maxLng": 78.4330059,
+        "maxLat": 17.4994256
+      }
+    },
+    {
+      "id": 122,
+      "ward_number": 122,
+      "name": "Vivekananda Nagar Colony",
+      "zone": "West Zone",
+      "center": [
+        17.494912646666666,
+        78.41501326666666
+      ],
+      "bounds": {
+        "minLng": 78.403991,
+        "minLat": 17.4839729,
+        "maxLng": 78.427207,
+        "maxLat": 17.5027639
+      }
+    },
+    {
+      "id": 123,
+      "ward_number": 123,
+      "name": "Hydernagar",
+      "zone": "West Zone",
+      "center": [
+        17.50161041714286,
+        78.39088720857143
+      ],
+      "bounds": {
+        "minLng": 78.3738095,
+        "minLat": 17.4927425,
+        "maxLng": 78.4049231,
+        "maxLat": 17.5116931
+      }
+    },
+    {
+      "id": 124,
+      "ward_number": 124,
+      "name": "Alwyn Colony",
+      "zone": "West Zone",
+      "center": [
+        17.50457511935484,
+        78.40911523870967
+      ],
+      "bounds": {
+        "minLng": 78.4002186,
+        "minLat": 17.4957932,
+        "maxLng": 78.4204459,
+        "maxLat": 17.514088
+      }
+    },
+    {
+      "id": 125,
+      "ward_number": 125,
+      "name": "Gajularamaram",
+      "zone": "North Zone",
+      "center": [
+        17.526218859259263,
+        78.41690133703702
+      ],
+      "bounds": {
+        "minLng": 78.393619,
+        "minLat": 17.5125737,
+        "maxLng": 78.4373511,
+        "maxLat": 17.5458846
+      }
+    },
+    {
+      "id": 126,
+      "ward_number": 126,
+      "name": "Jagathgirigutta",
+      "zone": "North Zone",
+      "center": [
+        17.50718360571429,
+        78.4260214657143
+      ],
+      "bounds": {
+        "minLng": 78.412707,
+        "minLat": 17.497768,
+        "maxLng": 78.4330059,
+        "maxLat": 17.5146891
+      }
+    },
+    {
+      "id": 127,
+      "ward_number": 127,
+      "name": "Rangareddy Nagar",
+      "zone": "North Zone",
+      "center": [
+        17.49003061666667,
+        78.43853274
+      ],
+      "bounds": {
+        "minLng": 78.4262547,
+        "minLat": 17.4807303,
+        "maxLng": 78.450215,
+        "maxLat": 17.497768
+      }
+    },
+    {
+      "id": 128,
+      "ward_number": 128,
+      "name": "Chintal",
+      "zone": "North Zone",
+      "center": [
+        17.50337711212121,
+        78.43912478181817
+      ],
+      "bounds": {
+        "minLng": 78.4301467,
+        "minLat": 17.487612,
+        "maxLng": 78.452173,
+        "maxLat": 17.5166663
+      }
+    },
+    {
+      "id": 129,
+      "ward_number": 129,
+      "name": "Suraram",
+      "zone": "North Zone",
+      "center": [
+        17.53267913090909,
+        78.43065034363636
+      ],
+      "bounds": {
+        "minLng": 78.4083725,
+        "minLat": 17.5110646,
+        "maxLng": 78.4476267,
+        "maxLat": 17.5608321
+      }
+    },
+    {
+      "id": 130,
+      "ward_number": 130,
+      "name": "Subash Nagar",
+      "zone": "North Zone",
+      "center": [
+        17.523202564150946,
+        78.45309833207547
+      ],
+      "bounds": {
+        "minLng": 78.4336818,
+        "minLat": 17.5049932,
+        "maxLng": 78.4682877,
+        "maxLat": 17.5536846
+      }
+    },
+    {
+      "id": 131,
+      "ward_number": 131,
+      "name": "Quthbullapur",
+      "zone": "North Zone",
+      "center": [
+        17.495190728125,
+        78.45720454062501
+      ],
+      "bounds": {
+        "minLng": 78.4476267,
+        "minLat": 17.4820606,
+        "maxLng": 78.4702565,
+        "maxLat": 17.5112231
+      }
+    },
+    {
+      "id": 132,
+      "ward_number": 132,
+      "name": "Jeedimetla",
+      "zone": "North Zone",
+      "center": [
+        17.51130031206897,
+        78.47191644827585
+      ],
+      "bounds": {
+        "minLng": 78.4544851,
+        "minLat": 17.4945653,
+        "maxLng": 78.5022055,
+        "maxLat": 17.5316239
+      }
+    },
+    {
+      "id": 133,
+      "ward_number": 133,
+      "name": "Macha Bolarum",
+      "zone": "Unknown Zone",
+      "center": [
+        17.524152750000006,
+        78.518022035
+      ],
+      "bounds": {
+        "minLng": 78.4822592,
+        "minLat": 17.501646,
+        "maxLng": 78.5522461,
+        "maxLat": 17.5462698
+      }
+    },
+    {
+      "id": 134,
+      "ward_number": 134,
+      "name": "Alwal",
+      "zone": "North Zone",
+      "center": [
+        17.499994014583333,
+        78.50059412708336
+      ],
+      "bounds": {
+        "minLng": 78.4817792,
+        "minLat": 17.4902674,
+        "maxLng": 78.5150012,
+        "maxLat": 17.5105708
+      }
+    },
+    {
+      "id": 135,
+      "ward_number": 135,
+      "name": "Venkatapuram",
+      "zone": "North Zone",
+      "center": [
+        17.485945119999997,
+        78.4969927242857
+      ],
+      "bounds": {
+        "minLng": 78.4847379,
+        "minLat": 17.4716446,
+        "maxLng": 78.5094091,
+        "maxLat": 17.5011906
+      }
+    },
+    {
+      "id": 136,
+      "ward_number": 136,
+      "name": "Neredmet",
+      "zone": "East Zone",
+      "center": [
+        17.494608671590907,
+        78.5395753125
+      ],
+      "bounds": {
+        "minLng": 78.5232836,
+        "minLat": 17.4701487,
+        "maxLng": 78.5566774,
+        "maxLat": 17.5198891
+      }
+    },
+    {
+      "id": 137,
+      "ward_number": 137,
+      "name": "Vinayak Nagar",
+      "zone": "North Zone",
+      "center": [
+        17.46587576,
+        78.54317900461537
+      ],
+      "bounds": {
+        "minLng": 78.5353818,
+        "minLat": 17.4548828,
+        "maxLng": 78.5506049,
+        "maxLat": 17.4831682
+      }
+    },
+    {
+      "id": 138,
+      "ward_number": 138,
+      "name": "Moula Ali",
+      "zone": "North Zone",
+      "center": [
+        17.467305770149252,
+        78.55252477014922
+      ],
+      "bounds": {
+        "minLng": 78.5430193,
+        "minLat": 17.4580952,
+        "maxLng": 78.5658743,
+        "maxLat": 17.4821067
+      }
+    },
+    {
+      "id": 139,
+      "ward_number": 139,
+      "name": "East Anand Bagh",
+      "zone": "North Zone",
+      "center": [
+        17.453421171153842,
+        78.54663034134616
+      ],
+      "bounds": {
+        "minLng": 78.5310969,
+        "minLat": 17.4373459,
+        "maxLng": 78.5631417,
+        "maxLat": 17.4640305
+      }
+    },
+    {
+      "id": 140,
+      "ward_number": 140,
+      "name": "Malkajgiri",
+      "zone": "North Zone",
+      "center": [
+        17.459579599999998,
+        78.53688121568626
+      ],
+      "bounds": {
+        "minLng": 78.5311478,
+        "minLat": 17.4473997,
+        "maxLng": 78.5454118,
+        "maxLat": 17.4753065
+      }
+    },
+    {
+      "id": 141,
+      "ward_number": 141,
+      "name": "Gautham Nagar",
+      "zone": "North Zone",
+      "center": [
+        17.45022752391304,
+        78.52876752826087
+      ],
+      "bounds": {
+        "minLng": 78.519617,
+        "minLat": 17.4411536,
+        "maxLng": 78.5365471,
+        "maxLat": 17.4622415
+      }
+    },
+    {
+      "id": 142,
+      "ward_number": 142,
+      "name": "Addagutta",
+      "zone": "North Zone",
+      "center": [
+        17.439215468965518,
+        78.51912153103447
+      ],
+      "bounds": {
+        "minLng": 78.504653,
+        "minLat": 17.4333539,
+        "maxLng": 78.5386312,
+        "maxLat": 17.4461178
+      }
+    },
+    {
+      "id": 143,
+      "ward_number": 143,
+      "name": "Tarnaka",
+      "zone": "North Zone",
+      "center": [
+        17.431739563076928,
+        78.53531937076923
+      ],
+      "bounds": {
+        "minLng": 78.520464,
+        "minLat": 17.41933,
+        "maxLng": 78.5487485,
+        "maxLat": 17.4447718
+      }
+    },
+    {
+      "id": 144,
+      "ward_number": 144,
+      "name": "Mettuguda",
+      "zone": "North Zone",
+      "center": [
+        17.431842143396228,
+        78.5188232056604
+      ],
+      "bounds": {
+        "minLng": 78.5057902,
+        "minLat": 17.4241105,
+        "maxLng": 78.5380411,
+        "maxLat": 17.4394033
+      }
+    },
+    {
+      "id": 145,
+      "ward_number": 145,
+      "name": "Seethaphalmandi",
+      "zone": "North Zone",
+      "center": [
+        17.424588922222224,
+        78.51458485555555
+      ],
+      "bounds": {
+        "minLng": 78.5089619,
+        "minLat": 17.4192737,
+        "maxLng": 78.5212398,
+        "maxLat": 17.4305645
+      }
+    },
+    {
+      "id": 146,
+      "ward_number": 146,
+      "name": "Boudha Nagar",
+      "zone": "North Zone",
+      "center": [
+        17.4155582137931,
+        78.51419715517241
+      ],
+      "bounds": {
+        "minLng": 78.5091591,
+        "minLat": 17.410562,
+        "maxLng": 78.5201347,
+        "maxLat": 17.4205379
+      }
+    },
+    {
+      "id": 147,
+      "ward_number": 147,
+      "name": "Bansilapet",
+      "zone": "North Zone",
+      "center": [
+        17.426344303636366,
+        78.50293512
+      ],
+      "bounds": {
+        "minLng": 78.4921968,
+        "minLat": 17.4197702,
+        "maxLng": 78.5115838,
+        "maxLat": 17.4330954
+      }
+    },
+    {
+      "id": 148,
+      "ward_number": 148,
+      "name": "Ramgopalpet",
+      "zone": "North Zone",
+      "center": [
+        17.43311431578947,
+        78.48765923947367
+      ],
+      "bounds": {
+        "minLng": 78.4793115,
+        "minLat": 17.424131,
+        "maxLng": 78.4953725,
+        "maxLat": 17.4418803
+      }
+    },
+    {
+      "id": 149,
+      "ward_number": 149,
+      "name": "Begumpet",
+      "zone": "North Zone",
+      "center": [
+        17.44195353854167,
+        78.47280013020833
+      ],
+      "bounds": {
+        "minLng": 78.4516447,
+        "minLat": 17.4284905,
+        "maxLng": 78.4985805,
+        "maxLat": 17.4599349
+      }
+    },
+    {
+      "id": 150,
+      "ward_number": 150,
+      "name": "Monda Market",
+      "zone": "North Zone",
+      "center": [
+        17.439640141818177,
+        78.50432501454546
+      ],
+      "bounds": {
+        "minLng": 78.492685,
+        "minLat": 17.4312555,
+        "maxLng": 78.5181713,
+        "maxLat": 17.4510306
+      }
+    }
+  ],
+  "zones": [
+    "Central Zone",
+    "East Zone",
+    "North Zone",
+    "South Zone",
+    "Unknown Zone",
+    "West Zone"
+  ],
+  "generated_at": "2026-06-29T13:19:12.596Z"
+}
