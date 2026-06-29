@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import app, { bootstrap } from './src/server-app.js';
+import app, { bootstrap } from './src/app.js';
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();
