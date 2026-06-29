@@ -49,6 +49,17 @@ function setupProductionStatic(): void {
 
 app.use(express.json({ limit: '10mb' }));
 
+let bootPromise: Promise<void> | null = null;
+app.use(async (_req, _res, next) => {
+  bootPromise ??= bootstrap();
+  try {
+    await bootPromise;
+    next();
+  } catch (err) {
+    next(err);
+  }
+});
+
 function handleDbError(res: express.Response, err: unknown, fallback = 'Database error') {
   console.error(err);
   const message = err instanceof Error ? err.message : fallback;
