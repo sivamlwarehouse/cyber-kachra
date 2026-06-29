@@ -1,0 +1,11 @@
+{
+  "name": "Cyber-Kachra",
+  "description": "An anonymous, zero-friction civic waste tracker for Greater Hyderabad. Geolocated, ward-assigned, and tied to MLA constituencies.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
