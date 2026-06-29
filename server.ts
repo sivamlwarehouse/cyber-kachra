@@ -1,7 +1,6 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
-import { createServer as createViteServer } from 'vite';
 import { Dump, CitizenReport, VerificationLog } from './src/types';
 import { getWardForCoord, isWithinGhmcBoundary } from './src/ghmc/ward-lookup.js';
 import { getConstituencyForCoord, getDistanceMeters, wards, constituencies } from './src/wards_constituencies.js';
@@ -487,6 +486,7 @@ async function startServer() {
   await bootstrap();
 
   if (process.env.NODE_ENV !== 'production') {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
