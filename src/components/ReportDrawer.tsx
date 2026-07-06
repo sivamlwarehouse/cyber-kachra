@@ -2,10 +2,11 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Upload, MapPin, CheckCircle2, AlertTriangle, RefreshCw, X, Shield, ChevronRight, ChevronLeft } from 'lucide-react';
 import { Dump } from '../types';
 import { useLanguage } from '../i18n/LanguageContext';
+import { compressImageFile, formatPhotoSize } from '../utils/compress-image';
 import {
   Severity, ComplaintType, WasteType,
   SEVERITY_OPTIONS, WASTE_TYPE_OPTIONS,
-  SEVERITY_COLORS, SEVERITY_BORDER, SEVERITY_EMOJI,
+  SEVERITY_BORDER, SEVERITY_EMOJI,
   COMPLAINT_CATEGORIES, ComplaintCategory,
 } from '../i18n/report-options';
 
@@ -26,11 +27,12 @@ interface ReportDrawerProps {
     image_url: string;
     force_new?: boolean;
   }) => Promise<{
-    action: string;
-    message: string;
+    action?: string;
+    message?: string;
     dump?: Dump;
     distance?: number;
     existing_dump?: Dump;
+    error?: string;
   } | null>;
 }
 
@@ -77,6 +79,8 @@ export default function ReportDrawer({
     zone: string;
   } | null>(null);
   const [resolvingLocation, setResolvingLocation] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const [photoSizeKb, setPhotoSizeKb] = useState<number | null>(null);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
@@ -117,39 +121,23 @@ export default function ReportDrawer({
     return () => controller.abort();
   }, [reportCoords?.lat, reportCoords?.lng]);
 
-  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setCompressing(true);
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        const MAX = 800;
-        if (width > MAX || height > MAX) {
-          if (width > height) {
-            height = Math.round((height * MAX) / width);
-            width = MAX;
-          } else {
-            width = Math.round((width * MAX) / height);
-            height = MAX;
-          }
-        }
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (ctx) {
-          ctx.drawImage(img, 0, 0, width, height);
-          setImage(canvas.toDataURL('image/jpeg', 0.8));
-        }
-        setCompressing(false);
-      };
-      img.src = event.target?.result as string;
-    };
-    reader.readAsDataURL(file);
+    setSubmitError(null);
+    try {
+      const result = await compressImageFile(file);
+      setImage(result.dataUrl);
+      setPhotoSizeKb(result.sizeKb);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : 'Could not process photo.');
+      setImage(null);
+      setPhotoSizeKb(null);
+    } finally {
+      setCompressing(false);
+      e.target.value = '';
+    }
   };
 
   const resetForm = () => {
@@ -162,11 +150,14 @@ export default function ReportDrawer({
     setComplaintCategory('public');
     setWasteType('mixed');
     setSoftCatchPrompt(null);
+    setSubmitError(null);
+    setPhotoSizeKb(null);
   };
 
   const handleSubmit = async (forceNew = false) => {
     if (!reportCoords || !image) return;
     setSubmitting(true);
+    setSubmitError(null);
     try {
       const response = await onSubmitReport({
         lat: reportCoords.lat,
@@ -180,16 +171,26 @@ export default function ReportDrawer({
         force_new: forceNew,
       });
 
-      if (response?.action === 'soft_catch_prompt') {
+      if (!response) {
+        setSubmitError('Failed to upload report. Please try again.');
+        return;
+      }
+
+      if (response.error) {
+        setSubmitError(response.error);
+        return;
+      }
+
+      if (response.action === 'soft_catch_prompt') {
         setSoftCatchPrompt({
           distance: response.distance!,
           existing_dump: response.existing_dump!,
         });
-      } else if (response) {
+      } else {
         resetForm();
       }
     } catch (err) {
-      console.error(err);
+      setSubmitError(err instanceof Error ? err.message : 'Failed to upload report.');
     } finally {
       setSubmitting(false);
     }
@@ -239,6 +240,13 @@ export default function ReportDrawer({
               </span>
             </div>
           ))}
+        </div>
+      )}
+
+      {submitError && (
+        <div className="bg-status-active-light border border-status-active/30 rounded-xl px-3 py-2.5 flex gap-2 items-start">
+          <AlertTriangle className="w-4 h-4 text-status-active shrink-0 mt-0.5" />
+          <p className="text-[11px] text-status-active font-medium leading-relaxed">{submitError}</p>
         </div>
       )}
 
@@ -370,7 +378,7 @@ export default function ReportDrawer({
               ) : (
                 <div className="relative rounded-2xl overflow-hidden aspect-[4/3] border border-natural-sand">
                   <img src={image} alt="" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
-                  <button type="button" onClick={() => setImage(null)} className="absolute top-2 right-2 bg-black/70 text-white p-1 rounded-full cursor-pointer">
+                  <button type="button" onClick={() => { setImage(null); setPhotoSizeKb(null); }} className="absolute top-2 right-2 bg-black/70 text-white p-1 rounded-full cursor-pointer">
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
@@ -378,6 +386,11 @@ export default function ReportDrawer({
               {compressing && (
                 <p className="text-xs text-status-pending flex items-center gap-2 justify-center">
                   <RefreshCw className="w-3.5 h-3.5 animate-spin" /> {tr.compressing}
+                </p>
+              )}
+              {!compressing && photoSizeKb != null && image && (
+                <p className="text-[10px] text-status-clean font-semibold text-center">
+                  {formatPhotoSize(photoSizeKb)}
                 </p>
               )}
             </div>

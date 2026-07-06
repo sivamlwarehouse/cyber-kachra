@@ -246,15 +246,22 @@ export async function getFullState() {
 export async function ensureSeedData(): Promise<void> {
   if (!isSupabaseConfigured()) {
     await local.localEnsureSeedData();
-    console.log('Using in-memory local store (Supabase key not set). Data resets on restart.');
+    console.log(
+      '⚠ In-memory store active — set SUPABASE_SERVICE_ROLE_KEY in .env.local for persistent data.',
+    );
     return;
   }
+
+  console.log(`✓ Supabase configured (${process.env.SUPABASE_URL})`);
 
   const { count, error } = await getSupabase()
     .from('dumps')
     .select('*', { count: 'exact', head: true });
   if (error) throw error;
-  if ((count ?? 0) > 0) return;
+  if ((count ?? 0) > 0) {
+    console.log(`✓ Supabase connected — ${count} dump(s) in database.`);
+    return;
+  }
 
   const { error: dumpError } = await getSupabase().from('dumps').insert(initialDumps);
   if (dumpError) throw dumpError;

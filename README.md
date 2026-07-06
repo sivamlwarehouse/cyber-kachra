@@ -21,7 +21,9 @@ View your app in AI Studio: https://ai.studio/apps/4cb9e95e-9fa4-4413-b256-88862
 3. **Restore your Supabase project** if it is paused (Dashboard → project → Restore).
 4. Run database migration:
    `npm run db:migrate`
-5. Run the app:
+5. Verify Supabase connection:
+   `npm run db:check`
+6. Run the app:
    `npm run dev`
 
 Data is stored in Supabase tables: `dumps`, `citizen_reports`, `verification_logs`.

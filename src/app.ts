@@ -59,6 +59,13 @@ function setupProductionStatic(): void {
 
 app.use(express.json({ limit: '10mb' }));
 
+const MAX_IMAGE_BYTES = 400 * 1024;
+
+function estimateBase64Bytes(dataUrl: string): number {
+  const base64 = dataUrl.includes(',') ? dataUrl.split(',')[1] : dataUrl;
+  return Math.ceil((base64.length * 3) / 4);
+}
+
 let bootPromise: Promise<void> | null = null;
 app.use(async (_req, _res, next) => {
   bootPromise ??= bootstrap();
@@ -129,6 +136,13 @@ app.post('/api/dumps', async (req, res) => {
       return res.status(400).json({ error: 'Missing required fields: lat, lng, image_url, device_hash' });
     }
 
+    const imageBytes = estimateBase64Bytes(image_url);
+    if (imageBytes > MAX_IMAGE_BYTES) {
+      return res.status(400).json({
+        error: 'Photo too large after compression. Please retake closer or choose a smaller image.',
+      });
+    }
+
     if (!isWithinHyderabad(lat, lng) || !isWithinGhmcBoundary(lat, lng)) {
       return res.status(400).json({ error: 'Reports must be within Greater Hyderabad municipal limits.' });
     }
@@ -178,6 +192,7 @@ app.post('/api/dumps', async (req, res) => {
 
     // Soft catch prompt (40 - 75m)
     if (closestDump && minDistance > 40 && minDistance <= 75 && !force_new) {
+      console.log(`[report] soft_catch_prompt distance=${minDistance.toFixed(1)}m`);
       return res.json({
         action: 'soft_catch_prompt',
         distance: minDistance,
@@ -220,7 +235,9 @@ app.post('/api/dumps', async (req, res) => {
       message: 'Your complaint was submitted successfully! The community has been notified.',
       dump: newDump,
     });
+    console.log(`[report] created_new id=${dumpId} imageKb=${Math.round(imageBytes / 1024)}`);
   } catch (err) {
+    console.error('[report] failed:', err instanceof Error ? err.message : err);
     handleDbError(res, err, 'Failed to create dump report');
   }
 });

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { CheckCircle2, Camera, MapPin, Truck, Clock, Users, X } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
@@ -21,6 +21,8 @@ export default function ReportSuccessModal({ open, message, onClose }: ReportSuc
   const { t } = useLanguage();
   const s = t.success;
   const [visibleSteps, setVisibleSteps] = useState(0);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     if (!open) {
@@ -30,12 +32,12 @@ export default function ReportSuccessModal({ open, message, onClose }: ReportSuc
     const timers = STEPS.map((step, i) =>
       setTimeout(() => setVisibleSteps(i + 1), step.delay),
     );
-    const autoClose = setTimeout(() => onClose(), 5500);
+    const autoClose = setTimeout(() => onCloseRef.current(), 5500);
     return () => {
       timers.forEach(clearTimeout);
       clearTimeout(autoClose);
     };
-  }, [open, onClose]);
+  }, [open]);
 
   const stepLabels: Record<string, string> = {
     photo: s.stepPhoto,
@@ -53,7 +55,7 @@ export default function ReportSuccessModal({ open, message, onClose }: ReportSuc
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-          onClick={onClose}
+          onClick={() => onCloseRef.current()}
         >
           <motion.div
             initial={{ scale: 0.9, opacity: 0, y: 20 }}
@@ -64,7 +66,7 @@ export default function ReportSuccessModal({ open, message, onClose }: ReportSuc
             className="bg-white rounded-3xl shadow-2xl max-w-sm w-full p-6 relative overflow-hidden"
           >
             <button
-              onClick={onClose}
+              onClick={() => onCloseRef.current()}
               className="absolute top-4 right-4 p-1.5 rounded-full text-[#A3A199] hover:bg-natural-ivory cursor-pointer"
               aria-label="Close"
             >
@@ -124,7 +126,7 @@ export default function ReportSuccessModal({ open, message, onClose }: ReportSuc
               </div>
 
               <button
-                onClick={onClose}
+                onClick={() => onCloseRef.current()}
                 className="w-full mt-2 bg-status-clean hover:opacity-90 text-white font-bold py-3 rounded-full text-xs cursor-pointer"
               >
                 {s.doneBtn}

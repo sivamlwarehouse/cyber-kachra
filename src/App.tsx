@@ -184,7 +184,7 @@ export default function App() {
       const resData = await res.json().catch(() => ({}));
 
       if (!res.ok) {
-        throw new Error(resData.error || 'Failed to post report.');
+        return { error: resData.error || 'Failed to post report.' };
       }
 
       if (resData.action === 'soft_catch_prompt') {
@@ -205,9 +205,13 @@ export default function App() {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to upload report.';
       showNotice(message, 'info');
-      return null;
+      return { error: message };
     }
   };
+
+  const handleSuccessModalClose = useCallback(() => {
+    setSuccessModal({ open: false, message: '' });
+  }, []);
 
   const handleVoteSubmit = async (voteType: 'still_exists' | 'cleaned') => {
     if (!selectedDump) return;
@@ -301,7 +305,7 @@ export default function App() {
       <ReportSuccessModal
         open={successModal.open}
         message={successModal.message}
-        onClose={() => setSuccessModal({ open: false, message: '' })}
+        onClose={handleSuccessModalClose}
       />
       {/* Header bar */}
       <header className="bg-white/80 border-b border-natural-sand text-natural-heading shadow-sm backdrop-blur-sm shrink-0">
