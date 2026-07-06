@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldAlert, RefreshCw, CheckCircle, Award } from 'lucide-react';
+import { ShieldAlert, RefreshCw, CheckCircle, Clock } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
 
 interface StatsDashboardProps {
@@ -8,6 +8,8 @@ interface StatsDashboardProps {
     active: number;
     pending: number;
     resolved: number;
+    cleaned_this_week?: number;
+    avg_cleanup_days?: number;
   };
   onRefresh: () => void;
   loading: boolean;
@@ -16,83 +18,82 @@ interface StatsDashboardProps {
 export default function StatsDashboard({ overview, onRefresh, loading }: StatsDashboardProps) {
   const { t } = useLanguage();
   const s = t.stats;
-  const percentageCleaned = overview.total_reported > 0
-    ? Math.round((overview.resolved / overview.total_reported) * 100)
-    : 100;
+  const cleanedWeek = overview.cleaned_this_week ?? overview.resolved;
+  const avgDays = overview.avg_cleanup_days ?? 0;
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-      {/* Active Dumps Card */}
-      <div className="bg-natural-light-clay/50 border border-natural-clay/20 rounded-[24px] p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-        <div className="absolute right-4 top-4 p-2 bg-natural-light-clay text-natural-clay rounded-xl">
-          <ShieldAlert className="w-4 h-4" />
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="bg-status-active-light border border-status-active/20 rounded-2xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden">
+        <div className="absolute right-3 top-3 p-2 bg-status-active/10 text-status-active rounded-xl">
+          <ShieldAlert className="w-5 h-5" />
         </div>
         <div>
-          <span className="text-[10px] font-mono font-bold text-natural-clay uppercase tracking-widest">
+          <span className="text-[10px] font-mono font-bold text-status-active uppercase tracking-widest">
             {s.activeDumps}
           </span>
-          <div className="text-3xl font-serif font-bold text-natural-heading mt-1">
+          <div className="text-3xl font-bold text-natural-heading mt-1">
             {overview.active}
           </div>
         </div>
-        <div className="text-[10px] text-natural-clay/80 font-medium mt-3 flex items-center gap-1">
-          <span>● {s.activeSub}</span>
+        <div className="text-[10px] text-status-active/80 font-medium mt-2">
+          ● {s.activeSub}
         </div>
       </div>
 
-      {/* Pending Cleanup Card */}
-      <div className="bg-natural-ivory border border-natural-sand rounded-[24px] p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-        <div className="absolute right-4 top-4 p-2 bg-white border border-natural-sand text-[#7A7872] rounded-xl">
-          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+      <div className="bg-status-pending-light border border-status-pending/20 rounded-2xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden">
+        <div className="absolute right-3 top-3 p-2 bg-status-pending/10 text-status-pending rounded-xl">
+          <RefreshCw className={`w-5 h-5 ${loading ? 'animate-spin' : ''}`} />
         </div>
         <div>
-          <span className="text-[10px] font-mono font-bold text-[#7A7872] uppercase tracking-widest">
+          <span className="text-[10px] font-mono font-bold text-status-pending uppercase tracking-widest">
             {s.pending}
           </span>
-          <div className="text-3xl font-serif font-bold text-natural-heading mt-1">
+          <div className="text-3xl font-bold text-natural-heading mt-1">
             {overview.pending}
           </div>
         </div>
-        <div className="text-[10px] text-[#7A7872]/80 font-medium mt-3 flex items-center gap-1">
-          <span>● {s.pendingSub}</span>
+        <div className="text-[10px] text-status-pending/80 font-medium mt-2">
+          ● {s.pendingSub}
         </div>
       </div>
 
-      {/* Resolved Card */}
-      <div className="bg-natural-light-sage/50 border border-natural-sage/20 rounded-[24px] p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-        <div className="absolute right-4 top-4 p-2 bg-natural-light-sage text-natural-sage rounded-xl">
-          <CheckCircle className="w-4 h-4" />
+      <div className="bg-status-clean-light border border-status-clean/20 rounded-2xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden">
+        <div className="absolute right-3 top-3 p-2 bg-status-clean/10 text-status-clean rounded-xl">
+          <CheckCircle className="w-5 h-5" />
         </div>
         <div>
-          <span className="text-[10px] font-mono font-bold text-natural-sage uppercase tracking-widest">
+          <span className="text-[10px] font-mono font-bold text-status-clean uppercase tracking-widest">
             {s.resolved}
           </span>
-          <div className="text-3xl font-serif font-bold text-natural-heading mt-1">
-            {overview.resolved}
+          <div className="text-3xl font-bold text-natural-heading mt-1">
+            {cleanedWeek}
           </div>
         </div>
-        <div className="text-[10px] text-natural-sage/80 font-medium mt-3 flex items-center gap-1">
-          <span>✓ {s.resolvedSub}</span>
+        <div className="text-[10px] text-status-clean/80 font-medium mt-2">
+          ✓ {s.resolvedSub}
         </div>
       </div>
 
-      {/* Clean Rate Card */}
-      <div className="bg-natural-sage text-white rounded-[24px] p-5 flex flex-col justify-between shadow-sm relative overflow-hidden group">
-        <div className="absolute right-4 top-4 p-2 bg-white/20 text-white rounded-xl">
-          <Award className="w-4 h-4" />
+      <button
+        type="button"
+        onClick={onRefresh}
+        className="bg-status-clean text-white rounded-2xl p-4 flex flex-col justify-between shadow-sm relative overflow-hidden text-left cursor-pointer hover:opacity-95"
+      >
+        <div className="absolute right-3 top-3 p-2 bg-white/20 text-white rounded-xl">
+          <Clock className="w-5 h-5" />
         </div>
         <div>
           <span className="text-[10px] font-mono font-bold text-white/70 uppercase tracking-widest">
             {s.cleanupRate}
           </span>
-          <div className="text-3xl font-serif italic font-bold text-white mt-1">
-            {percentageCleaned}%
+          <div className="text-3xl font-bold text-white mt-1">
+            {avgDays > 0 ? `${avgDays}d` : '—'}
           </div>
         </div>
-        <div className="text-[10px] text-white/80 font-medium mt-3 flex items-center gap-1">
-          <span>★ {s.cleanupSub}</span>
+        <div className="text-[10px] text-white/80 font-medium mt-2">
+          ★ {s.cleanupSub}
         </div>
-      </div>
+      </button>
     </div>
   );
 }

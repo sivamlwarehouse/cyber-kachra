@@ -12,3 +12,4 @@ api/index.js.map
 api/_bundle.js
 api/_bundle.js.map
 .vercel
+*.pdf

@@ -32,7 +32,18 @@ export async function bootstrap(): Promise<void> {
     await ensureSeedData();
     console.log('Database ready.');
   } catch (err) {
-    console.error('Database startup failed:', err instanceof Error ? err.message : err);
+    const message = err instanceof Error ? err.message : String(err);
+    console.error('Database startup failed:', message);
+    if (
+      message.includes('timeout') ||
+      message.includes('Connection terminated') ||
+      message.includes('ENOTFOUND') ||
+      message.includes('fetch failed')
+    ) {
+      console.error(
+        'Supabase may be paused or unreachable. Restore the project in Supabase Dashboard, or remove SUPABASE_URL to use in-memory storage locally.',
+      );
+    }
   }
 }
 
@@ -160,7 +171,7 @@ app.post('/api/dumps', async (req, res) => {
 
       return res.json({
         action: 'merged_silently',
-        message: `Report attached to existing dump site ${minDistance.toFixed(1)}m away.`,
+        message: `Your photo was added to an existing report ${minDistance.toFixed(0)}m away. Thank you!`,
         dump: updatedDump,
       });
     }
@@ -206,7 +217,7 @@ app.post('/api/dumps', async (req, res) => {
 
     res.json({
       action: 'created_new',
-      message: 'New garbage dump successfully reported.',
+      message: 'Your complaint was submitted successfully! The community has been notified.',
       dump: newDump,
     });
   } catch (err) {
@@ -305,12 +316,30 @@ app.get('/api/stats', async (_req, res) => {
       constituencyStats,
       wardStats,
       zoneStats,
-      overview: {
-        total_reported: dumps.length,
-        active: dumps.filter((d) => d.status === 'active').length,
-        pending: dumps.filter((d) => d.status === 'pending_verification').length,
-        resolved: dumps.filter((d) => d.status === 'resolved').length,
-      },
+      overview: (() => {
+        const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        const resolvedDumps = dumps.filter((d) => d.status === 'resolved' && d.resolved_at);
+        const cleanedThisWeek = resolvedDumps.filter(
+          (d) => new Date(d.resolved_at!).getTime() >= weekAgo,
+        ).length;
+        const avgCleanupDays = resolvedDumps.length > 0
+          ? resolvedDumps.reduce((sum, d) => {
+              const days =
+                (new Date(d.resolved_at!).getTime() - new Date(d.created_at).getTime()) /
+                (1000 * 60 * 60 * 24);
+              return sum + Math.max(0, days);
+            }, 0) / resolvedDumps.length
+          : 0;
+
+        return {
+          total_reported: dumps.length,
+          active: dumps.filter((d) => d.status === 'active').length,
+          pending: dumps.filter((d) => d.status === 'pending_verification').length,
+          resolved: dumps.filter((d) => d.status === 'resolved').length,
+          cleaned_this_week: cleanedThisWeek,
+          avg_cleanup_days: Math.round(avgCleanupDays * 10) / 10,
+        };
+      })(),
     });
   } catch (err) {
     handleDbError(res, err, 'Failed to load stats');

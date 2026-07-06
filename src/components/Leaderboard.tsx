@@ -18,12 +18,14 @@ export default function Leaderboard({
 }: LeaderboardProps) {
   const { t } = useLanguage();
   const lb = t.leaderboard;
-  const [filterType, setFilterType] = useState<'constituency' | 'ward' | 'zone'>('constituency');
+  const [filterType, setFilterType] = useState<'constituency' | 'ward' | 'zone' | 'fastest'>('ward');
   const [searchQuery, setSearchQuery] = useState('');
 
   const activeList = 
     filterType === 'constituency' ? constituencies :
-    filterType === 'ward' ? wards : zones;
+    filterType === 'ward' ? wards :
+    filterType === 'zone' ? zones :
+    [...wards].sort((a, b) => b.percentage_cleaned - a.percentage_cleaned);
 
   const filteredList = activeList.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -43,20 +45,10 @@ export default function Leaderboard({
         </div>
 
         {/* Tab Switcher */}
-        <div className="grid grid-cols-3 gap-1 bg-natural-ivory border border-natural-sand/60 p-1 rounded-full">
-          <button
-            onClick={() => { setFilterType('constituency'); setSearchQuery(''); }}
-            className={`py-1.5 px-3 rounded-full text-xs font-semibold transition-all ${
-              filterType === 'constituency'
-                ? 'bg-white text-natural-heading shadow-sm'
-                : 'text-[#A3A199] hover:text-natural-heading'
-            }`}
-          >
-            {lb.constituency}
-          </button>
+        <div className="grid grid-cols-2 gap-1 bg-natural-ivory border border-natural-sand/60 p-1 rounded-2xl">
           <button
             onClick={() => { setFilterType('ward'); setSearchQuery(''); }}
-            className={`py-1.5 px-3 rounded-full text-xs font-semibold transition-all ${
+            className={`py-1.5 px-2 rounded-xl text-[10px] font-semibold transition-all ${
               filterType === 'ward'
                 ? 'bg-white text-natural-heading shadow-sm'
                 : 'text-[#A3A199] hover:text-natural-heading'
@@ -65,14 +57,34 @@ export default function Leaderboard({
             {lb.ward}
           </button>
           <button
+            onClick={() => { setFilterType('constituency'); setSearchQuery(''); }}
+            className={`py-1.5 px-2 rounded-xl text-[10px] font-semibold transition-all ${
+              filterType === 'constituency'
+                ? 'bg-white text-natural-heading shadow-sm'
+                : 'text-[#A3A199] hover:text-natural-heading'
+            }`}
+          >
+            {lb.constituency}
+          </button>
+          <button
             onClick={() => { setFilterType('zone'); setSearchQuery(''); }}
-            className={`py-1.5 px-3 rounded-full text-xs font-semibold transition-all ${
+            className={`py-1.5 px-2 rounded-xl text-[10px] font-semibold transition-all ${
               filterType === 'zone'
                 ? 'bg-white text-natural-heading shadow-sm'
                 : 'text-[#A3A199] hover:text-natural-heading'
             }`}
           >
             {lb.zone}
+          </button>
+          <button
+            onClick={() => { setFilterType('fastest'); setSearchQuery(''); }}
+            className={`py-1.5 px-2 rounded-xl text-[10px] font-semibold transition-all ${
+              filterType === 'fastest'
+                ? 'bg-white text-natural-heading shadow-sm'
+                : 'text-[#A3A199] hover:text-natural-heading'
+            }`}
+          >
+            {lb.fastestCleanup}
           </button>
         </div>
       </div>
@@ -108,12 +120,15 @@ export default function Leaderboard({
             const rank = index + 1;
             // Rank badge color
             const getRankBadge = (r: number) => {
-              if (entry.active_dumps === 0) return 'bg-natural-light-sage text-natural-sage border-natural-sage/20';
-              if (r === 1) return 'bg-natural-clay text-white border-natural-clay shadow-sm';
-              if (r === 2) return 'bg-natural-light-clay text-natural-clay border-natural-clay/20';
+              if (entry.active_dumps === 0) return 'bg-status-clean-light text-status-clean border-status-clean/20';
+              if (r === 1) return 'bg-status-active text-white border-status-active shadow-sm';
+              if (r === 2) return 'bg-status-pending-light text-status-pending border-status-pending/20';
               if (r === 3) return 'bg-natural-ivory text-natural-text border-natural-sand';
               return 'bg-natural-bg/60 text-[#7A7872] border-natural-sand';
             };
+
+            const isTopPerformer = filterType === 'fastest' && rank <= 3 && entry.percentage_cleaned >= 50;
+            const needsAttention = entry.active_dumps >= 3;
 
             return (
               <div
@@ -134,9 +149,22 @@ export default function Leaderboard({
                       <span className="text-xs font-bold text-natural-heading tracking-tight">
                         {entry.name}
                       </span>
+                      {isTopPerformer && (
+                        <span className="text-[9px] font-bold text-status-clean bg-status-clean-light px-1.5 py-0.5 rounded-full">
+                          {lb.topPerformer}
+                        </span>
+                      )}
+                      {needsAttention && !isTopPerformer && (
+                        <span className="text-[9px] font-bold text-status-active bg-status-active-light px-1.5 py-0.5 rounded-full">
+                          {lb.needsAttention}
+                        </span>
+                      )}
                       {filterType !== 'zone' && (
                         <button
-                          onClick={() => onSelectEntity(filterType as 'constituency' | 'ward', entry.id)}
+                          onClick={() => onSelectEntity(
+                            filterType === 'constituency' ? 'constituency' : 'ward',
+                            entry.id,
+                          )}
                           className="p-1 rounded-lg text-[#A3A199] hover:text-natural-sage hover:bg-natural-light-sage/40 transition-colors"
                           title={lb.viewOnMap}
                         >
@@ -162,10 +190,10 @@ export default function Leaderboard({
                     <div
                       className={`text-sm font-bold font-mono ${
                         entry.active_dumps > 3
-                          ? 'text-natural-clay'
+                          ? 'text-status-active'
                           : entry.active_dumps > 0
-                          ? 'text-yellow-600'
-                          : 'text-natural-sage'
+                          ? 'text-status-pending'
+                          : 'text-status-clean'
                       }`}
                     >
                       {entry.active_dumps}

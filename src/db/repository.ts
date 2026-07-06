@@ -5,6 +5,17 @@ import { getSupabase, isSupabaseConfigured } from './supabase';
 
 export type { DBState } from './local-store';
 
+function isTransientDbError(err: unknown): boolean {
+  const message = err instanceof Error ? err.message : String(err);
+  return (
+    message.includes('timeout') ||
+    message.includes('Connection terminated') ||
+    message.includes('ENOTFOUND') ||
+    message.includes('fetch failed') ||
+    message.includes('Failed to fetch')
+  );
+}
+
 function mapDump(row: Dump): Dump {
   return {
     ...row,
@@ -24,22 +35,35 @@ function mapReport(row: CitizenReport): CitizenReport {
 
 export async function getAllDumps(): Promise<Dump[]> {
   if (!isSupabaseConfigured()) return local.localGetAllDumps();
-  const { data, error } = await getSupabase()
-    .from('dumps')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) throw error;
-  return (data ?? []).map(mapDump);
+  try {
+    const { data, error } = await getSupabase()
+      .from('dumps')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data ?? []).map(mapDump);
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      console.warn('Supabase unreachable — using in-memory store for reads.');
+      return local.localGetAllDumps();
+    }
+    throw err;
+  }
 }
 
 export async function getActiveDumps(): Promise<Dump[]> {
   if (!isSupabaseConfigured()) return local.localGetActiveDumps();
-  const { data, error } = await getSupabase()
-    .from('dumps')
-    .select('*')
-    .neq('status', 'resolved');
-  if (error) throw error;
-  return (data ?? []).map(mapDump);
+  try {
+    const { data, error } = await getSupabase()
+      .from('dumps')
+      .select('*')
+      .neq('status', 'resolved');
+    if (error) throw error;
+    return (data ?? []).map(mapDump);
+  } catch (err) {
+    if (isTransientDbError(err)) return local.localGetActiveDumps();
+    throw err;
+  }
 }
 
 export async function getDumpById(id: string): Promise<Dump | null> {
@@ -55,25 +79,38 @@ export async function getDumpById(id: string): Promise<Dump | null> {
 
 export async function insertDump(dump: Dump): Promise<Dump> {
   if (!isSupabaseConfigured()) return local.localInsertDump(dump);
-  const { data, error } = await getSupabase()
-    .from('dumps')
-    .insert(dump)
-    .select('*')
-    .single();
-  if (error) throw error;
-  return mapDump(data);
+  try {
+    const { data, error } = await getSupabase()
+      .from('dumps')
+      .insert(dump)
+      .select('*')
+      .single();
+    if (error) throw error;
+    return mapDump(data);
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      console.warn('Supabase unreachable — saving report to in-memory store.');
+      return local.localInsertDump(dump);
+    }
+    throw err;
+  }
 }
 
 export async function updateDump(id: string, updates: Partial<Dump>): Promise<Dump> {
   if (!isSupabaseConfigured()) return local.localUpdateDump(id, updates);
-  const { data, error } = await getSupabase()
-    .from('dumps')
-    .update(updates)
-    .eq('id', id)
-    .select('*')
-    .single();
-  if (error) throw error;
-  return mapDump(data);
+  try {
+    const { data, error } = await getSupabase()
+      .from('dumps')
+      .update(updates)
+      .eq('id', id)
+      .select('*')
+      .single();
+    if (error) throw error;
+    return mapDump(data);
+  } catch (err) {
+    if (isTransientDbError(err)) return local.localUpdateDump(id, updates);
+    throw err;
+  }
 }
 
 export async function deleteDump(id: string): Promise<void> {
@@ -84,13 +121,21 @@ export async function deleteDump(id: string): Promise<void> {
 
 export async function insertReport(report: CitizenReport): Promise<CitizenReport> {
   if (!isSupabaseConfigured()) return local.localInsertReport(report);
-  const { data, error } = await getSupabase()
-    .from('citizen_reports')
-    .insert(report)
-    .select('*')
-    .single();
-  if (error) throw error;
-  return mapReport(data);
+  try {
+    const { data, error } = await getSupabase()
+      .from('citizen_reports')
+      .insert(report)
+      .select('*')
+      .single();
+    if (error) throw error;
+    return mapReport(data);
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      console.warn('Supabase unreachable — saving citizen report to in-memory store.');
+      return local.localInsertReport(report);
+    }
+    throw err;
+  }
 }
 
 export async function getReportById(id: string): Promise<CitizenReport | null> {

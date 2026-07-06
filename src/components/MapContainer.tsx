@@ -1,6 +1,6 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useMemo } from 'react';
 import L from 'leaflet';
-import { Dump } from '../types';
+import { Dump, LeaderboardEntry } from '../types';
 import { HYDERABAD_CENTER, HYDERABAD_LEAFLET_BOUNDS, clampToHyderabad } from '../hyderabad-bounds';
 import { useLanguage } from '../i18n/LanguageContext';
 
@@ -11,6 +11,7 @@ interface MapContainerProps {
   reportMode: boolean;
   reportCoords: { lat: number; lng: number } | null;
   onUpdateReportCoords: (coords: { lat: number; lng: number }) => void;
+  wardLeaderboard?: LeaderboardEntry[];
 }
 
 export default function MapContainer({
@@ -20,9 +21,44 @@ export default function MapContainer({
   reportMode,
   reportCoords,
   onUpdateReportCoords,
+  wardLeaderboard = [],
 }: MapContainerProps) {
   const { t } = useLanguage();
   const m = t.map;
+
+  const mapInsights = useMemo(() => {
+    const activeDumps = dumps.filter((d) => d.status === 'active');
+    const mostDirtyWard = [...wardLeaderboard]
+      .filter((w) => w.active_dumps > 0)
+      .sort((a, b) => b.active_dumps - a.active_dumps)[0];
+
+    const recentlyCleaned = [...dumps]
+      .filter((d) => d.status === 'resolved' && d.resolved_at)
+      .sort((a, b) => new Date(b.resolved_at!).getTime() - new Date(a.resolved_at!).getTime())[0];
+
+    const weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+    const recentByWard: Record<number, number> = {};
+    dumps.forEach((d) => {
+      if (new Date(d.created_at).getTime() >= weekAgo) {
+        recentByWard[d.ward_id] = (recentByWard[d.ward_id] || 0) + 1;
+      }
+    });
+    const trendingWardId = Object.entries(recentByWard).sort((a, b) => b[1] - a[1])[0]?.[0];
+    const trendingWard = wardLeaderboard.find((w) => w.id === Number(trendingWardId));
+
+    let nearestCount = 0;
+    if (reportCoords) {
+      nearestCount = activeDumps.filter((d) => {
+        const dist = Math.sqrt(
+          Math.pow((d.lat - reportCoords.lat) * 111000, 2) +
+          Math.pow((d.lng - reportCoords.lng) * 111000 * Math.cos(reportCoords.lat * Math.PI / 180), 2),
+        );
+        return dist <= 2000;
+      }).length;
+    }
+
+    return { mostDirtyWard, recentlyCleaned, trendingWard, nearestCount };
+  }, [dumps, wardLeaderboard, reportCoords]);
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<{ [key: string]: L.Marker }>({});
@@ -105,27 +141,26 @@ export default function MapContainer({
       let markerHtml = '';
       if (dump.status === 'active') {
         markerHtml = `
-          <div class="relative w-8 h-8 flex items-center justify-center">
-            <span class="absolute inline-flex h-full w-full rounded-full bg-natural-clay opacity-75 marker-pulse-active"></span>
-            <div class="relative rounded-full h-5 w-5 bg-natural-clay border border-white shadow-md flex items-center justify-center text-[10px] text-white font-bold">
+          <div class="relative w-9 h-9 flex items-center justify-center">
+            <span class="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 marker-pulse-active"></span>
+            <div class="relative rounded-full h-6 w-6 bg-red-500 border border-white shadow-md flex items-center justify-center text-[10px] text-white font-bold">
               !
             </div>
           </div>
         `;
       } else if (dump.status === 'pending_verification') {
         markerHtml = `
-          <div class="relative w-8 h-8 flex items-center justify-center">
-            <span class="absolute inline-flex h-full w-full rounded-full bg-yellow-400 opacity-75 marker-pulse-pending"></span>
-            <div class="relative rounded-full h-5 w-5 bg-yellow-500 border border-white shadow-md flex items-center justify-center text-[10px] text-white font-bold">
+          <div class="relative w-9 h-9 flex items-center justify-center">
+            <span class="absolute inline-flex h-full w-full rounded-full bg-orange-500 opacity-75 marker-pulse-pending"></span>
+            <div class="relative rounded-full h-6 w-6 bg-orange-500 border border-white shadow-md flex items-center justify-center text-[10px] text-white font-bold">
               ?
             </div>
           </div>
         `;
       } else {
-        // Resolved
         markerHtml = `
-          <div class="relative w-8 h-8 flex items-center justify-center">
-            <div class="relative rounded-full h-5 w-5 bg-natural-sage border border-white shadow-md flex items-center justify-center text-[9px] text-white font-bold">
+          <div class="relative w-9 h-9 flex items-center justify-center">
+            <div class="relative rounded-full h-6 w-6 bg-green-500 border border-white shadow-md flex items-center justify-center text-[9px] text-white font-bold">
               ✓
             </div>
           </div>
@@ -218,17 +253,40 @@ export default function MapContainer({
       {/* Floating Map Indicators */}
       <div className="absolute top-4 left-4 z-20 bg-white/95 backdrop-blur-md px-4 py-2 rounded-[20px] border border-natural-sand/80 shadow-sm text-[11px] font-medium text-natural-text flex items-center gap-4">
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-natural-clay inline-block animate-pulse"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-status-active inline-block animate-pulse"></span>
           <span>{m.activeDump}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-yellow-500 inline-block"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-status-pending inline-block"></span>
           <span>{m.pendingVerify}</span>
         </div>
         <div className="flex items-center gap-1.5">
-          <span className="w-2 h-2 rounded-full bg-natural-sage inline-block"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-status-clean inline-block"></span>
           <span>{m.verifiedClean}</span>
         </div>
+      </div>
+
+      <div className="absolute top-4 right-4 z-20 flex flex-col gap-1.5 items-end max-w-[160px]">
+        {reportCoords && mapInsights.nearestCount > 0 && (
+          <div className="bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-natural-sand shadow-sm text-[10px] font-semibold text-natural-heading">
+            {m.nearestReports}: {mapInsights.nearestCount}
+          </div>
+        )}
+        {mapInsights.trendingWard && (
+          <div className="bg-status-pending-light/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-status-pending/30 shadow-sm text-[10px] font-semibold text-status-pending truncate max-w-full">
+            {m.trendingArea}: {mapInsights.trendingWard.name}
+          </div>
+        )}
+        {mapInsights.mostDirtyWard && (
+          <div className="bg-status-active-light/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-status-active/30 shadow-sm text-[10px] font-semibold text-status-active truncate max-w-full">
+            {m.mostDirtyWard}: {mapInsights.mostDirtyWard.name}
+          </div>
+        )}
+        {mapInsights.recentlyCleaned && (
+          <div className="bg-status-clean-light/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-status-clean/30 shadow-sm text-[10px] font-semibold text-status-clean truncate max-w-full">
+            {m.recentlyCleaned}
+          </div>
+        )}
       </div>
 
       <div className="absolute bottom-4 left-4 z-20 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-natural-sand/80 shadow-sm text-[10px] font-mono text-[#7A7872]">
@@ -236,7 +294,7 @@ export default function MapContainer({
       </div>
 
       {reportMode && (
-        <div className="absolute top-4 right-4 z-20 bg-natural-clay text-white px-4 py-2 rounded-full font-medium text-xs shadow-md animate-bounce flex items-center gap-2">
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 z-20 bg-status-active text-white px-4 py-2 rounded-full font-medium text-xs shadow-md animate-bounce flex items-center gap-2 whitespace-nowrap">
           <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-crosshair"><circle cx="12" cy="12" r="10"/><line x1="22" y1="12" x2="18" y2="12"/><line x1="6" y1="12" x2="2" y2="12"/><line x1="12" y1="6" x2="12" y2="2"/><line x1="12" y1="22" x2="12" y2="18"/></svg>
           <span>{m.tapDragPin}</span>
         </div>

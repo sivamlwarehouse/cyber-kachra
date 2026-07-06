@@ -7,6 +7,7 @@ import StatsDashboard from './components/StatsDashboard';
 import MapContainer from './components/MapContainer';
 import Leaderboard from './components/Leaderboard';
 import ReportDrawer from './components/ReportDrawer';
+import ReportSuccessModal from './components/ReportSuccessModal';
 import DumpDetailDrawer from './components/DumpDetailDrawer';
 import HeroLanding from './components/HeroLanding';
 import LanguageToggle from './components/LanguageToggle';
@@ -19,7 +20,14 @@ export default function App() {
   const [selectedDump, setSelectedDump] = useState<Dump | null>(null);
   
   // Stats and leaderboard
-  const [overview, setOverview] = useState({ total_reported: 0, active: 0, pending: 0, resolved: 0 });
+  const [overview, setOverview] = useState({
+    total_reported: 0,
+    active: 0,
+    pending: 0,
+    resolved: 0,
+    cleaned_this_week: 0,
+    avg_cleanup_days: 0,
+  });
   const [constituencyLeaderboard, setConstituencyLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [wardLeaderboard, setWardLeaderboard] = useState<LeaderboardEntry[]>([]);
   const [zoneLeaderboard, setZoneLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -31,6 +39,10 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [globalMessage, setGlobalMessage] = useState<{ text: string; type: 'success' | 'info' } | null>(null);
+  const [successModal, setSuccessModal] = useState<{ open: boolean; message: string }>({
+    open: false,
+    message: '',
+  });
 
   // Simulated Device Hash
   const [userDeviceHash, setUserDeviceHash] = useState<string>('');
@@ -115,8 +127,21 @@ export default function App() {
 
   const showNotice = (text: string, type: 'success' | 'info') => {
     setGlobalMessage({ text, type });
-    setTimeout(() => setGlobalMessage(null), 5000);
+    setTimeout(() => setGlobalMessage(null), 8000);
   };
+
+  const getDeviceHash = useCallback(() => {
+    if (userDeviceHash) return userDeviceHash;
+    const stored = localStorage.getItem('cyber_kachara_device_hash');
+    if (stored) {
+      setUserDeviceHash(stored);
+      return stored;
+    }
+    const hash = `citizen-${Math.random().toString(36).substring(2, 11)}`;
+    localStorage.setItem('cyber_kachara_device_hash', hash);
+    setUserDeviceHash(hash);
+    return hash;
+  }, [userDeviceHash]);
 
   const handleReportModeActivate = () => {
     setSelectedDump(null);
@@ -152,29 +177,34 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...data,
-          device_hash: userDeviceHash
-        })
+          device_hash: getDeviceHash(),
+        }),
       });
 
-      if (!res.ok) {
-        const errData = await res.json();
-        throw new Error(errData.error || "Failed to post report.");
-      }
+      const resData = await res.json().catch(() => ({}));
 
-      const resData = await res.json();
+      if (!res.ok) {
+        throw new Error(resData.error || 'Failed to post report.');
+      }
 
       if (resData.action === 'soft_catch_prompt') {
-        return resData; // Return to ReportDrawer to show potential duplicate
+        return resData;
       }
 
-      // Success
-      await fetchData();
+      const msg =
+        resData.message ||
+        'Your complaint was submitted successfully! Thank you for reporting.';
+
+      setSuccessModal({ open: true, message: msg });
+      showNotice(msg, 'success');
       setReportMode(false);
       setReportCoords(null);
       setReportInitialAddress('');
+      void fetchData().catch((err) => console.error('Refresh after report failed:', err));
       return resData;
-    } catch (err: any) {
-      showNotice(err.message || "Failed to upload report.", "info");
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Failed to upload report.';
+      showNotice(message, 'info');
       return null;
     }
   };
@@ -268,6 +298,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-natural-bg text-natural-text font-sans flex flex-col antialiased">
+      <ReportSuccessModal
+        open={successModal.open}
+        message={successModal.message}
+        onClose={() => setSuccessModal({ open: false, message: '' })}
+      />
       {/* Header bar */}
       <header className="bg-white/80 border-b border-natural-sand text-natural-heading shadow-sm backdrop-blur-sm shrink-0">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-4 flex flex-col sm:flex-row justify-between items-center gap-4">
@@ -305,7 +340,7 @@ export default function App() {
             <button
               onClick={handleReportModeActivate}
               disabled={reportMode}
-              className="bg-natural-clay hover:opacity-90 disabled:opacity-50 text-white font-medium px-5 py-2.5 rounded-full text-xs tracking-tight shadow-sm cursor-pointer flex items-center gap-1.5 transition-all w-full sm:w-auto justify-center"
+              className="bg-status-active hover:opacity-90 disabled:opacity-50 text-white font-bold px-5 py-2.5 rounded-full text-xs tracking-tight shadow-md shadow-status-active/20 cursor-pointer flex items-center gap-1.5 transition-all w-full sm:w-auto justify-center"
             >
               <Sparkles className="w-4 h-4 fill-current" />
               <span>{t.app.reportCta}</span>
@@ -328,11 +363,11 @@ export default function App() {
         {globalMessage && (
           <div className={`p-3.5 rounded-2xl text-xs font-medium border animate-fadeIn shadow-sm flex items-center gap-2 ${
             globalMessage.type === 'success'
-              ? 'bg-natural-light-sage text-natural-sage border-natural-light-sage'
+              ? 'bg-status-clean-light text-status-clean border-status-clean/30'
               : 'bg-natural-ivory text-natural-text border-natural-sand'
           }`}>
             <div className={`w-1.5 h-1.5 rounded-full ${
-              globalMessage.type === 'success' ? 'bg-natural-sage' : 'bg-natural-clay'
+              globalMessage.type === 'success' ? 'bg-status-clean' : 'bg-status-pending'
             } animate-ping`}></div>
             <span>{globalMessage.text}</span>
           </div>
@@ -378,6 +413,7 @@ export default function App() {
                 reportMode={reportMode}
                 reportCoords={reportCoords}
                 onUpdateReportCoords={handleUpdateReportCoords}
+                wardLeaderboard={wardLeaderboard}
               />
             </div>
 
@@ -389,12 +425,17 @@ export default function App() {
           </div>
 
           {/* Leaderboard / Details Panel Column */}
-          <div className="lg:col-span-4 h-full">
+          <div className={`lg:col-span-4 h-full ${reportMode ? 'fixed inset-x-0 bottom-0 z-50 lg:relative lg:inset-auto' : ''}`}>
+            {reportMode && (
+              <div
+                className="fixed inset-0 bg-black/30 z-40 lg:hidden"
+                onClick={handleCancelReport}
+                aria-hidden
+              />
+            )}
             {reportMode ? (
               <ReportDrawer
-                onReportSuccess={(msg) => {
-                  showNotice(msg, "success");
-                }}
+                onReportSuccess={() => {}}
                 reportCoords={reportCoords}
                 onRequestGeolocation={handleRequestGeolocation}
                 onCancel={handleCancelReport}

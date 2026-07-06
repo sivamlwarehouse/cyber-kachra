@@ -14,21 +14,28 @@
   --color-natural-ivory: #F5F2ED;
   --color-natural-light-sage: #EAF0EA;
   --color-natural-light-clay: #FBF1EE;
+
+  --color-status-clean: #22C55E;
+  --color-status-pending: #F97316;
+  --color-status-active: #EF4444;
+  --color-status-clean-light: #DCFCE7;
+  --color-status-pending-light: #FFEDD5;
+  --color-status-active-light: #FEE2E2;
 }
 
 /* Custom Leaflet Marker Pulse Animation */
 @keyframes pulse-clay {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(214, 140, 106, 0.7);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(214, 140, 106, 0);
+    box-shadow: 0 0 0 10px rgba(239, 68, 68, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(214, 140, 106, 0);
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
   }
 }
 
@@ -40,15 +47,15 @@
 @keyframes pulse-yellow {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0.7);
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0.7);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(234, 179, 8, 0);
+    box-shadow: 0 0 0 10px rgba(249, 115, 22, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(234, 179, 8, 0);
+    box-shadow: 0 0 0 0 rgba(249, 115, 22, 0);
   }
 }
 

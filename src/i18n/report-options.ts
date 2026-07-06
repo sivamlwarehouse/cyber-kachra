@@ -45,3 +45,19 @@ export const SEVERITY_BORDER: Record<Severity, string> = {
   severe: 'border-red-500',
   critical: 'border-stone-600',
 };
+
+export const SEVERITY_EMOJI: Record<Severity, string> = {
+  minor: '🟡',
+  moderate: '🟠',
+  severe: '🔴',
+  critical: '⚫',
+};
+
+export type ComplaintCategory = 'public' | 'construction' | 'household' | 'other';
+
+export const COMPLAINT_CATEGORIES: { key: ComplaintCategory; types: ComplaintType[] }[] = [
+  { key: 'public', types: ['public_place', 'street_not_swept'] },
+  { key: 'construction', types: ['construction_waste'] },
+  { key: 'household', types: ['door_collection_missed'] },
+  { key: 'other', types: ['empty_plot'] },
+];
