@@ -1,6 +1,6 @@
 import { readFileSync } from 'fs';
 import path from 'path';
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 import { point } from '@turf/helpers';
 import type { Feature, FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 import type { Ward } from '../types';

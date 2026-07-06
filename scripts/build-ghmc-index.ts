@@ -7,7 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import centroid from '@turf/centroid';
 import bbox from '@turf/bbox';
-import booleanPointInPolygon from '@turf/boolean-point-in-polygon';
+import { booleanPointInPolygon } from '@turf/boolean-point-in-polygon';
 import { point } from '@turf/helpers';
 import type { Feature, FeatureCollection, Polygon, MultiPolygon } from 'geojson';
 
