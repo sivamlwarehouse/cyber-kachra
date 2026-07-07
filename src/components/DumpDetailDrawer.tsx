@@ -1,50 +1,32 @@
 import React, { useState } from 'react';
 import { Dump, Ward, Constituency } from '../types';
-import { MapPin, Shield, Calendar, Users, ThumbsUp, CheckCircle, ChevronLeft, ChevronRight, Image as ImageIcon, Camera } from 'lucide-react';
+import { MapPin, Shield, Calendar, ChevronLeft, ChevronRight, Image as ImageIcon, Camera } from 'lucide-react';
 import { useLanguage } from '../i18n/LanguageContext';
+import DumpUpdateSheet, { DumpUpdateAction } from './DumpUpdateSheet';
 
 interface DumpDetailDrawerProps {
   dump: Dump;
   ward: Ward | undefined;
   constituency: Constituency | undefined;
-  onVote: (voteType: 'still_exists' | 'cleaned') => Promise<void>;
+  deviceHash: string;
   onClose: () => void;
-  onAddPhoto: () => void;
+  onDumpUpdated: (dump: Dump, message: string) => void;
 }
 
 export default function DumpDetailDrawer({
   dump,
   ward,
   constituency,
-  onVote,
+  deviceHash,
   onClose,
-  onAddPhoto,
+  onDumpUpdated,
 }: DumpDetailDrawerProps) {
   const { t } = useLanguage();
   const d = t.dumpDetail;
   const [activePhotoIndex, setActivePhotoIndex] = useState(0);
-  const [voting, setVoting] = useState(false);
-  const [voteError, setVoteError] = useState<string | null>(null);
-  const [voteSuccess, setVoteSuccess] = useState<string | null>(null);
+  const [updateAction, setUpdateAction] = useState<DumpUpdateAction | null>(null);
 
-  const handleVoteAction = async (voteType: 'still_exists' | 'cleaned') => {
-    setVoting(true);
-    setVoteError(null);
-    setVoteSuccess(null);
-    try {
-      await onVote(voteType);
-      setVoteSuccess(
-        voteType === 'still_exists' ? d.voteStillSuccess : d.voteCleanSuccess,
-      );
-      // clear success after 3 seconds
-      setTimeout(() => setVoteSuccess(null), 4000);
-    } catch (err: any) {
-      setVoteError(err.message || d.voteError);
-      setTimeout(() => setVoteError(null), 4000);
-    } finally {
-      setVoting(false);
-    }
-  };
+  const openUpdate = (action: DumpUpdateAction) => setUpdateAction(action);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -212,46 +194,32 @@ export default function DumpDetailDrawer({
           </div>
         )}
 
-        {/* Feedback alerts */}
-        {voteSuccess && (
-          <div className="bg-natural-light-sage/60 border border-natural-sage/20 text-natural-sage text-xs p-3 rounded-xl font-medium animate-fadeIn">
-            {voteSuccess}
-          </div>
-        )}
-        {voteError && (
-          <div className="bg-natural-light-clay border border-natural-clay/20 text-natural-clay text-xs p-3 rounded-xl font-medium animate-fadeIn">
-            {voteError}
-          </div>
-        )}
+        {/* Feedback alerts — success shown via parent toast after sheet submit */}
 
-        {/* Action Controls */}
+        {/* Action Controls — opens photo + GPS update sheet */}
         {dump.status !== 'resolved' && (
           <div className="grid grid-cols-2 gap-3 mt-auto">
             <button
-              onClick={() => handleVoteAction('still_exists')}
-              disabled={voting}
-              className="bg-white hover:bg-natural-light-clay/10 text-natural-clay border border-natural-clay/20 font-bold py-3 px-3 rounded-[20px] text-xs flex flex-col items-center justify-center gap-1 transition-all cursor-pointer shadow-sm disabled:opacity-40"
+              onClick={() => openUpdate('still_exists')}
+              className="bg-white hover:bg-natural-light-clay/10 text-natural-clay border border-natural-clay/20 font-bold py-3 px-3 rounded-[20px] text-xs flex flex-col items-center justify-center gap-1 transition-all cursor-pointer shadow-sm"
             >
-              <ThumbsUp className="w-4 h-4 text-natural-clay" />
               <span>{d.stillExists}</span>
-              <span className="text-[9px] text-natural-clay/80 font-normal font-mono">+10 Score</span>
+              <span className="text-[9px] text-natural-clay/80 font-normal font-mono">+ photo &amp; GPS</span>
             </button>
 
             <button
-              onClick={() => handleVoteAction('cleaned')}
-              disabled={voting}
-              className="bg-natural-sage hover:opacity-90 text-white font-bold py-3 px-3 rounded-[20px] text-xs flex flex-col items-center justify-center gap-1 transition-all cursor-pointer shadow-md shadow-natural-sage/10 disabled:opacity-40"
+              onClick={() => openUpdate('cleaned')}
+              className="bg-natural-sage hover:opacity-90 text-white font-bold py-3 px-3 rounded-[20px] text-xs flex flex-col items-center justify-center gap-1 transition-all cursor-pointer shadow-md shadow-natural-sage/10"
             >
-              <CheckCircle className="w-4 h-4 text-white" />
               <span>{d.markCleaned}</span>
-              <span className="text-[9px] text-white/80 font-normal">Pending Verification</span>
+              <span className="text-[9px] text-white/80 font-normal">+ photo &amp; GPS</span>
             </button>
           </div>
         )}
 
         {dump.status !== 'resolved' && (
           <button
-            onClick={onAddPhoto}
+            onClick={() => openUpdate('evidence')}
             className="w-full mt-2 bg-natural-ivory hover:bg-natural-light-sage/20 text-natural-heading border border-natural-sand font-semibold py-3 px-3 rounded-full text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer"
           >
             <Camera className="w-4 h-4 text-natural-sage" />
@@ -259,6 +227,19 @@ export default function DumpDetailDrawer({
           </button>
         )}
       </div>
+
+      {updateAction && (
+        <DumpUpdateSheet
+          dump={dump}
+          deviceHash={deviceHash}
+          initialAction={updateAction}
+          onClose={() => setUpdateAction(null)}
+          onSuccess={(message, updatedDump) => {
+            setUpdateAction(null);
+            onDumpUpdated(updatedDump, message);
+          }}
+        />
+      )}
     </div>
   );
 }

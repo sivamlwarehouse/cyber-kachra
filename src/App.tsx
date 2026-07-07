@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { Dump, Ward, Constituency, LeaderboardEntry } from './types';
 import { wards, constituencies } from './wards_constituencies';
-import { snapToReportLocation, HYDERABAD_CENTER, clampToHyderabad } from './hyderabad-bounds';
+import { clampToHyderabad } from './hyderabad-bounds';
+import { requestDeviceLocation } from './utils/geolocation';
 import StatsDashboard from './components/StatsDashboard';
 import MapContainer from './components/MapContainer';
 import Leaderboard from './components/Leaderboard';
@@ -101,46 +102,16 @@ export default function App() {
 
   // Anonymous device hash for vote deduplication (not shown in UI)
   const handleRequestGeolocation = () => {
-    const fallback = {
-      lat: HYDERABAD_CENTER[0],
-      lng: HYDERABAD_CENTER[1],
-    };
-
-    if (!navigator.geolocation) {
-      showNotice(t.app.geolocationUnsupported, "info");
-      setReportCoords(snapToReportLocation(fallback.lat, fallback.lng));
-      return;
-    }
-
-    const applyCoords = (lat: number, lng: number, successMessage: string) => {
-      const snapped = snapToReportLocation(lat, lng);
-      setReportCoords(snapped);
-      showNotice(successMessage, successMessage === t.app.gpsSuccess ? "success" : "info");
-    };
-
-    showNotice(t.app.gpsRetrieving, "info");
-
-    const tryLowAccuracy = () => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          applyCoords(position.coords.latitude, position.coords.longitude, t.app.gpsSuccess);
-        },
-        (err) => {
-          console.warn("Geolocation failed, falling back to map center:", err);
-          showNotice(t.app.gpsFallback, "info");
-          setReportCoords(snapToReportLocation(fallback.lat, fallback.lng));
-        },
-        { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 },
-      );
-    };
-
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        applyCoords(position.coords.latitude, position.coords.longitude, t.app.gpsSuccess);
-      },
-      () => tryLowAccuracy(),
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
-    );
+    showNotice(t.app.gpsRetrieving, 'info');
+    void requestDeviceLocation().then((result) => {
+      setReportCoords({ lat: result.lat, lng: result.lng });
+      if (result.ok) {
+        showNotice(t.app.gpsSuccess, 'success');
+      } else {
+        const errMsg = 'error' in result ? result.error : t.app.gpsFallback;
+        showNotice(errMsg, 'info');
+      }
+    });
   };
 
   const showNotice = (text: string, type: 'success' | 'info') => {
@@ -165,10 +136,10 @@ export default function App() {
     setSelectedDump(null);
     setReportInitialAddress('');
     setReportMode(true);
+    setReportCoords(null);
     requestAnimationFrame(() => {
       document.getElementById('report-map')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
-    handleRequestGeolocation();
   };
 
   const handleCancelReport = () => {
@@ -255,23 +226,10 @@ export default function App() {
     setSuccessModal({ open: false, message: '' });
   }, []);
 
-  const handleVoteSubmit = async (voteType: 'still_exists' | 'cleaned') => {
-    if (!selectedDump) return;
-
-    const res = await fetch(`/api/dumps/${selectedDump.id}/vote`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        vote_type: voteType,
-        device_hash: userDeviceHash
-      })
-    });
-
-    if (!res.ok) {
-      const errData = await res.json();
-      throw new Error(errData.error || "Failed to submit civic feedback.");
-    }
-
+  const handleDumpUpdated = async (dump: Dump, message: string) => {
+    setSelectedDump(dump);
+    setDumps((prev) => prev.map((d) => (d.id === dump.id ? dump : d)));
+    showNotice(message, 'success');
     await fetchData();
   };
 
@@ -489,13 +447,9 @@ export default function App() {
                 dump={selectedDump}
                 ward={wards.find(w => w.id === selectedDump.ward_id)}
                 constituency={constituencies.find(c => c.id === selectedDump.constituency_id)}
-                onVote={handleVoteSubmit}
+                deviceHash={getDeviceHash()}
                 onClose={() => setSelectedDump(null)}
-                onAddPhoto={() => {
-                  setReportCoords({ lat: selectedDump.lat, lng: selectedDump.lng });
-                  setReportInitialAddress(`Additional report photo for ${selectedDump.address_text}`);
-                  setReportMode(true);
-                }}
+                onDumpUpdated={handleDumpUpdated}
               />
             ) : (
               <Leaderboard

@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 dotenv.config();
 
-const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || 'nbndigynlvlkbmppyvip';
+const PROJECT_REF = process.env.SUPABASE_PROJECT_REF || 'shdifakkhpebhpblyxri';
 const ACCESS_TOKEN = process.env.SUPABASE_ACCESS_TOKEN;
 
 async function runSql(query: string): Promise<void> {
@@ -33,25 +33,17 @@ async function runSql(query: string): Promise<void> {
 
 async function runMigrationFile(filePath: string) {
   const sql = fs.readFileSync(filePath, 'utf-8');
-  const statements = sql
-    .split(';')
-    .map((s) => s.trim())
-    .filter((s) => s.length > 0 && !s.startsWith('--'));
-
-  console.log(`\n→ ${path.basename(filePath)} (${statements.length} statements)`);
-
-  for (const statement of statements) {
-    try {
-      await runSql(statement);
-      console.log('  OK:', statement.split('\n')[0].slice(0, 72));
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      if (message.includes('already exists')) {
-        console.log('  SKIP:', statement.split('\n')[0].slice(0, 72));
-        continue;
-      }
-      throw err;
+  console.log(`\n→ ${path.basename(filePath)}`);
+  try {
+    await runSql(sql);
+    console.log('  OK');
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : String(err);
+    if (message.includes('already exists')) {
+      console.log('  SKIP (already applied)');
+      return;
     }
+    throw err;
   }
 }
 

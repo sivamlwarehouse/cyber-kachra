@@ -4,6 +4,7 @@ import { wards, constituencies } from '../wards_constituencies';
 import AdminAnalytics from './AdminAnalytics';
 import LanguageToggle from './LanguageToggle';
 import { useLanguage } from '../i18n/LanguageContext';
+import { adminFetch } from '../utils/admin-auth';
 import { 
   Trash2, CheckCircle, RefreshCw, MapPin, Search, X, 
   Edit2, Save, ArrowLeft, Calendar, Vote, Database, AlertTriangle, 
@@ -53,7 +54,7 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch('/api/admin/data');
+      const res = await adminFetch('/api/admin/data');
       if (!res.ok) {
         throw new Error('Failed to retrieve full system data logs.');
       }
@@ -80,7 +81,7 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
 
   const handleUpdateDump = async (id: string) => {
     try {
-      const res = await fetch(`/api/admin/dumps/${id}`, {
+      const res = await adminFetch(`/api/admin/dumps/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -110,7 +111,7 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
     }
 
     try {
-      const res = await fetch(`/api/admin/dumps/${id}`, {
+      const res = await adminFetch(`/api/admin/dumps/${id}`, {
         method: 'DELETE'
       });
 
@@ -132,7 +133,7 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
     }
 
     try {
-      const res = await fetch(`/api/admin/reports/${id}`, {
+      const res = await adminFetch(`/api/admin/reports/${id}`, {
         method: 'DELETE'
       });
 
@@ -154,7 +155,7 @@ export default function AdminPanel({ onBack, onRefreshParent }: AdminPanelProps)
     }
 
     try {
-      const res = await fetch(`/api/admin/verifications/${id}`, {
+      const res = await adminFetch(`/api/admin/verifications/${id}`, {
         method: 'DELETE'
       });
 

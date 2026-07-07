@@ -3,6 +3,8 @@ import { createRoot } from 'react-dom/client';
 import 'leaflet/dist/leaflet.css';
 import App from './App.tsx';
 import AdminPanel from './components/AdminPanel.tsx';
+import AdminLogin from './components/AdminLogin.tsx';
+import { getAdminToken } from './utils/admin-auth.ts';
 import { LanguageProvider } from './i18n/LanguageContext.tsx';
 import './index.css';
 
@@ -12,6 +14,32 @@ function isAdminPath(pathname: string) {
     pathname === '/admin/' ||
     pathname === '/admin-console' ||
     pathname === '/admin-console/'
+  );
+}
+
+function AdminRoute() {
+  const [authed, setAuthed] = useState(() => Boolean(getAdminToken()));
+
+  if (!authed) {
+    return (
+      <AdminLogin
+        onBack={() => {
+          window.history.pushState({}, '', '/');
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }}
+        onSuccess={() => setAuthed(true)}
+      />
+    );
+  }
+
+  return (
+    <AdminPanel
+      onBack={() => {
+        window.history.pushState({}, '', '/');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      }}
+      onRefreshParent={() => {}}
+    />
   );
 }
 
@@ -40,15 +68,7 @@ function Root() {
   }, []);
 
   if (isAdminPath(pathname)) {
-    return (
-      <AdminPanel
-        onBack={() => {
-          window.history.pushState({}, '', '/');
-          setPathname('/');
-        }}
-        onRefreshParent={() => {}}
-      />
-    );
+    return <AdminRoute />;
   }
 
   return <App />;

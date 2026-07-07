@@ -290,12 +290,18 @@ export default function ReportDrawer({
                     <MapPin className="w-5 h-5 text-status-active shrink-0" />
                     <div>
                       <p className="text-xs font-bold text-status-active">{tr.locationOff}</p>
-                      <p className="text-[11px] text-status-active/90 mt-1 leading-relaxed">{tr.locationOffBody}</p>
+                      <p className="text-[11px] text-status-active/90 mt-1 leading-relaxed">
+                        Tap below to allow location access. On mobile, your browser will ask to share GPS.
+                      </p>
                     </div>
                   </div>
-                  <button type="button" onClick={onRequestGeolocation} className="w-full bg-status-active hover:opacity-90 text-white font-semibold py-2.5 rounded-full text-xs flex items-center justify-center gap-2 cursor-pointer">
+                  <button
+                    type="button"
+                    onClick={onRequestGeolocation}
+                    className="w-full bg-status-active hover:opacity-90 text-white font-semibold py-3 rounded-full text-xs flex items-center justify-center gap-2 cursor-pointer"
+                  >
                     <RefreshCw className="w-4 h-4" />
-                    {tr.tryAgain}
+                    Enable GPS Location
                   </button>
                 </div>
               ) : (
