@@ -19,9 +19,24 @@ function Root() {
   const [pathname, setPathname] = useState(() => window.location.pathname);
 
   useEffect(() => {
-    const onPopState = () => setPathname(window.location.pathname);
+    const syncPath = () => setPathname(window.location.pathname);
+    const onPopState = () => syncPath();
+    const origPush = history.pushState.bind(history);
+    const origReplace = history.replaceState.bind(history);
+    history.pushState = (...args) => {
+      origPush(...args);
+      syncPath();
+    };
+    history.replaceState = (...args) => {
+      origReplace(...args);
+      syncPath();
+    };
     window.addEventListener('popstate', onPopState);
-    return () => window.removeEventListener('popstate', onPopState);
+    return () => {
+      window.removeEventListener('popstate', onPopState);
+      history.pushState = origPush;
+      history.replaceState = origReplace;
+    };
   }, []);
 
   if (isAdminPath(pathname)) {

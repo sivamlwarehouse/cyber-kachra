@@ -5,6 +5,20 @@ import { getSupabase, isSupabaseConfigured } from './supabase';
 
 export type { DBState } from './local-store';
 
+/** When Supabase is down, stick to in-memory for the whole process (avoids split read/write). */
+let useLocalStoreFallback = false;
+
+function shouldUseLocalStore(): boolean {
+  return !isSupabaseConfigured() || useLocalStoreFallback;
+}
+
+function markLocalStoreFallback(reason: string): void {
+  if (!useLocalStoreFallback) {
+    useLocalStoreFallback = true;
+    console.warn(`⚠ Supabase unavailable — in-memory store for this session. ${reason}`);
+  }
+}
+
 function errorText(err: unknown): string {
   if (err instanceof Error) {
     const cause = err.cause instanceof Error ? err.cause.message : String(err.cause ?? '');
@@ -49,7 +63,7 @@ function mapReport(row: CitizenReport): CitizenReport {
 }
 
 export async function getAllDumps(): Promise<Dump[]> {
-  if (!isSupabaseConfigured()) return local.localGetAllDumps();
+  if (shouldUseLocalStore()) return local.localGetAllDumps();
   try {
     const { data, error } = await getSupabase()
       .from('dumps')
@@ -59,7 +73,7 @@ export async function getAllDumps(): Promise<Dump[]> {
     return (data ?? []).map(mapDump);
   } catch (err) {
     if (isTransientDbError(err)) {
-      console.warn('Supabase unreachable — using in-memory store for reads.');
+      markLocalStoreFallback('reads');
       return local.localGetAllDumps();
     }
     throw err;
@@ -67,7 +81,7 @@ export async function getAllDumps(): Promise<Dump[]> {
 }
 
 export async function getActiveDumps(): Promise<Dump[]> {
-  if (!isSupabaseConfigured()) return local.localGetActiveDumps();
+  if (shouldUseLocalStore()) return local.localGetActiveDumps();
   try {
     const { data, error } = await getSupabase()
       .from('dumps')
@@ -76,24 +90,35 @@ export async function getActiveDumps(): Promise<Dump[]> {
     if (error) throw error;
     return (data ?? []).map(mapDump);
   } catch (err) {
-    if (isTransientDbError(err)) return local.localGetActiveDumps();
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('reads');
+      return local.localGetActiveDumps();
+    }
     throw err;
   }
 }
 
 export async function getDumpById(id: string): Promise<Dump | null> {
-  if (!isSupabaseConfigured()) return local.localGetDumpById(id);
-  const { data, error } = await getSupabase()
-    .from('dumps')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
-  if (error) throw error;
-  return data ? mapDump(data) : null;
+  if (shouldUseLocalStore()) return local.localGetDumpById(id);
+  try {
+    const { data, error } = await getSupabase()
+      .from('dumps')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? mapDump(data) : null;
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('reads');
+      return local.localGetDumpById(id);
+    }
+    throw err;
+  }
 }
 
 export async function insertDump(dump: Dump): Promise<Dump> {
-  if (!isSupabaseConfigured()) return local.localInsertDump(dump);
+  if (shouldUseLocalStore()) return local.localInsertDump(dump);
   try {
     const { data, error } = await getSupabase()
       .from('dumps')
@@ -104,7 +129,7 @@ export async function insertDump(dump: Dump): Promise<Dump> {
     return mapDump(data);
   } catch (err) {
     if (isTransientDbError(err)) {
-      console.warn('Supabase unreachable — saving report to in-memory store.');
+      markLocalStoreFallback('writes');
       return local.localInsertDump(dump);
     }
     throw err;
@@ -112,7 +137,7 @@ export async function insertDump(dump: Dump): Promise<Dump> {
 }
 
 export async function updateDump(id: string, updates: Partial<Dump>): Promise<Dump> {
-  if (!isSupabaseConfigured()) return local.localUpdateDump(id, updates);
+  if (shouldUseLocalStore()) return local.localUpdateDump(id, updates);
   try {
     const { data, error } = await getSupabase()
       .from('dumps')
@@ -123,19 +148,30 @@ export async function updateDump(id: string, updates: Partial<Dump>): Promise<Du
     if (error) throw error;
     return mapDump(data);
   } catch (err) {
-    if (isTransientDbError(err)) return local.localUpdateDump(id, updates);
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('writes');
+      return local.localUpdateDump(id, updates);
+    }
     throw err;
   }
 }
 
 export async function deleteDump(id: string): Promise<void> {
-  if (!isSupabaseConfigured()) return local.localDeleteDump(id);
-  const { error } = await getSupabase().from('dumps').delete().eq('id', id);
-  if (error) throw error;
+  if (shouldUseLocalStore()) return local.localDeleteDump(id);
+  try {
+    const { error } = await getSupabase().from('dumps').delete().eq('id', id);
+    if (error) throw error;
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('writes');
+      return local.localDeleteDump(id);
+    }
+    throw err;
+  }
 }
 
 export async function insertReport(report: CitizenReport): Promise<CitizenReport> {
-  if (!isSupabaseConfigured()) return local.localInsertReport(report);
+  if (shouldUseLocalStore()) return local.localInsertReport(report);
   try {
     const { data, error } = await getSupabase()
       .from('citizen_reports')
@@ -146,7 +182,7 @@ export async function insertReport(report: CitizenReport): Promise<CitizenReport
     return mapReport(data);
   } catch (err) {
     if (isTransientDbError(err)) {
-      console.warn('Supabase unreachable — saving citizen report to in-memory store.');
+      markLocalStoreFallback('writes');
       return local.localInsertReport(report);
     }
     throw err;
@@ -154,59 +190,101 @@ export async function insertReport(report: CitizenReport): Promise<CitizenReport
 }
 
 export async function getReportById(id: string): Promise<CitizenReport | null> {
-  if (!isSupabaseConfigured()) {
+  if (shouldUseLocalStore()) {
     const reports = await local.localGetAllReports();
     return reports.find((r) => r.id === id) ?? null;
   }
-  const { data, error } = await getSupabase()
-    .from('citizen_reports')
-    .select('*')
-    .eq('id', id)
-    .maybeSingle();
-  if (error) throw error;
-  return data ? mapReport(data) : null;
+  try {
+    const { data, error } = await getSupabase()
+      .from('citizen_reports')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw error;
+    return data ? mapReport(data) : null;
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('reads');
+      const reports = await local.localGetAllReports();
+      return reports.find((r) => r.id === id) ?? null;
+    }
+    throw err;
+  }
 }
 
 export async function deleteReport(id: string): Promise<CitizenReport | null> {
   const report = await getReportById(id);
   if (!report) return null;
-  if (!isSupabaseConfigured()) {
+  if (shouldUseLocalStore()) {
     await local.localDeleteReport(id);
     return report;
   }
-  const { error } = await getSupabase().from('citizen_reports').delete().eq('id', id);
-  if (error) throw error;
-  return report;
+  try {
+    const { error } = await getSupabase().from('citizen_reports').delete().eq('id', id);
+    if (error) throw error;
+    return report;
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('writes');
+      await local.localDeleteReport(id);
+      return report;
+    }
+    throw err;
+  }
 }
 
 export async function getAllReports(): Promise<CitizenReport[]> {
-  if (!isSupabaseConfigured()) return local.localGetAllReports();
-  const { data, error } = await getSupabase()
-    .from('citizen_reports')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) throw error;
-  return (data ?? []).map(mapReport);
+  if (shouldUseLocalStore()) return local.localGetAllReports();
+  try {
+    const { data, error } = await getSupabase()
+      .from('citizen_reports')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return (data ?? []).map(mapReport);
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('reads');
+      return local.localGetAllReports();
+    }
+    throw err;
+  }
 }
 
 export async function getAllVerifications(): Promise<VerificationLog[]> {
-  if (!isSupabaseConfigured()) return local.localGetAllVerifications();
-  const { data, error } = await getSupabase()
-    .from('verification_logs')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) throw error;
-  return data ?? [];
+  if (shouldUseLocalStore()) return local.localGetAllVerifications();
+  try {
+    const { data, error } = await getSupabase()
+      .from('verification_logs')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data ?? [];
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('reads');
+      return local.localGetAllVerifications();
+    }
+    throw err;
+  }
 }
 
 export async function getVerificationsForDump(dumpId: string): Promise<VerificationLog[]> {
-  if (!isSupabaseConfigured()) return local.localGetVerificationsForDump(dumpId);
-  const { data, error } = await getSupabase()
-    .from('verification_logs')
-    .select('*')
-    .eq('dump_id', dumpId);
-  if (error) throw error;
-  return data ?? [];
+  if (shouldUseLocalStore()) return local.localGetVerificationsForDump(dumpId);
+  try {
+    const { data, error } = await getSupabase()
+      .from('verification_logs')
+      .select('*')
+      .eq('dump_id', dumpId);
+    if (error) throw error;
+    return data ?? [];
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('reads');
+      return local.localGetVerificationsForDump(dumpId);
+    }
+    throw err;
+  }
 }
 
 export async function hasRecentVote(
@@ -215,41 +293,65 @@ export async function hasRecentVote(
   voteType: VerificationLog['vote_type'],
   withinMs: number,
 ): Promise<boolean> {
-  if (!isSupabaseConfigured()) {
+  if (shouldUseLocalStore()) {
     return local.localHasRecentVote(dumpId, deviceHash, voteType, withinMs);
   }
-  const since = new Date(Date.now() - withinMs).toISOString();
-  const { data, error } = await getSupabase()
-    .from('verification_logs')
-    .select('id')
-    .eq('dump_id', dumpId)
-    .eq('device_hash', deviceHash)
-    .eq('vote_type', voteType)
-    .gte('created_at', since)
-    .limit(1);
-  if (error) throw error;
-  return (data?.length ?? 0) > 0;
+  try {
+    const since = new Date(Date.now() - withinMs).toISOString();
+    const { data, error } = await getSupabase()
+      .from('verification_logs')
+      .select('id')
+      .eq('dump_id', dumpId)
+      .eq('device_hash', deviceHash)
+      .eq('vote_type', voteType)
+      .gte('created_at', since)
+      .limit(1);
+    if (error) throw error;
+    return (data?.length ?? 0) > 0;
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('reads');
+      return local.localHasRecentVote(dumpId, deviceHash, voteType, withinMs);
+    }
+    throw err;
+  }
 }
 
 export async function insertVerification(vote: VerificationLog): Promise<VerificationLog> {
-  if (!isSupabaseConfigured()) return local.localInsertVerification(vote);
-  const { data, error } = await getSupabase()
-    .from('verification_logs')
-    .insert(vote)
-    .select('*')
-    .single();
-  if (error) throw error;
-  return data;
+  if (shouldUseLocalStore()) return local.localInsertVerification(vote);
+  try {
+    const { data, error } = await getSupabase()
+      .from('verification_logs')
+      .insert(vote)
+      .select('*')
+      .single();
+    if (error) throw error;
+    return data;
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('writes');
+      return local.localInsertVerification(vote);
+    }
+    throw err;
+  }
 }
 
 export async function deleteVerification(id: string): Promise<void> {
-  if (!isSupabaseConfigured()) return local.localDeleteVerification(id);
-  const { error } = await getSupabase().from('verification_logs').delete().eq('id', id);
-  if (error) throw error;
+  if (shouldUseLocalStore()) return local.localDeleteVerification(id);
+  try {
+    const { error } = await getSupabase().from('verification_logs').delete().eq('id', id);
+    if (error) throw error;
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      markLocalStoreFallback('writes');
+      return local.localDeleteVerification(id);
+    }
+    throw err;
+  }
 }
 
 export async function getFullState() {
-  if (!isSupabaseConfigured()) return local.localGetFullState();
+  if (shouldUseLocalStore()) return local.localGetFullState();
   const [dumps, reports, verifications] = await Promise.all([
     getAllDumps(),
     getAllReports(),
@@ -293,10 +395,8 @@ export async function ensureSeedData(): Promise<void> {
     console.log('Seeded Supabase with initial civic waste tracker data.');
   } catch (err) {
     if (isTransientDbError(err)) {
+      markLocalStoreFallback('startup');
       await local.localEnsureSeedData();
-      console.warn(
-        '⚠ Supabase unreachable — using in-memory store. Fix SUPABASE_URL / SERVICE_ROLE_KEY or restore your project.',
-      );
       return;
     }
     throw err;

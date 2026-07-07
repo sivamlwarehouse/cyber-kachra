@@ -22,6 +22,7 @@ export default function App() {
   // Stats and leaderboard
   const [overview, setOverview] = useState({
     total_reported: 0,
+    citizen_reports: 0,
     active: 0,
     pending: 0,
     resolved: 0,
@@ -215,12 +216,33 @@ export default function App() {
         resData.message ||
         'Your complaint was submitted successfully! Thank you for reporting.';
 
+      if (resData.dump) {
+        const dump = resData.dump as Dump;
+        setDumps((prev) => {
+          const exists = prev.some((d) => d.id === dump.id);
+          if (resData.action === 'created_new') {
+            return exists ? prev : [dump, ...prev];
+          }
+          return prev.map((d) => (d.id === dump.id ? dump : d));
+        });
+        setOverview((prev) => ({
+          ...prev,
+          citizen_reports: prev.citizen_reports + 1,
+          ...(resData.action === 'created_new'
+            ? {
+                active: prev.active + 1,
+                total_reported: prev.total_reported + 1,
+              }
+            : {}),
+        }));
+      }
+
       setSuccessModal({ open: true, message: msg });
       showNotice(msg, 'success');
       setReportMode(false);
       setReportCoords(null);
       setReportInitialAddress('');
-      void fetchData().catch((err) => console.error('Refresh after report failed:', err));
+      await fetchData();
       return resData;
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Failed to upload report.';

@@ -11,6 +11,7 @@ interface HeroLandingProps {
     active: number;
     resolved: number;
     total_reported: number;
+    citizen_reports?: number;
     cleaned_this_week?: number;
     avg_cleanup_days?: number;
   };
@@ -102,7 +103,7 @@ export default function HeroLanding({ onReport, onExplore, stats }: HeroLandingP
             <span className="hidden sm:inline text-natural-sand">·</span>
             <span className="flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-status-pending" />
-              {a.dumpsCleaned.replace('{count}', String(stats?.total_reported ?? 0))}
+              {a.dumpsCleaned.replace('{count}', String(stats?.citizen_reports ?? stats?.total_reported ?? 0))}
             </span>
           </div>
 

@@ -11,6 +11,7 @@ import {
   ensureSeedData,
   getActiveDumps,
   getAllDumps,
+  getAllReports,
   getDumpById,
   getFullState,
   getVerificationsForDump,
@@ -320,7 +321,7 @@ app.post('/api/dumps/:id/vote', async (req, res) => {
 // Unified Stats Endpoint
 app.get('/api/stats', async (_req, res) => {
   try {
-    const dumps = await getAllDumps();
+    const [dumps, reports] = await Promise.all([getAllDumps(), getAllReports()]);
     const constituencyStats = getConstituencyStats(dumps);
     const wardStats = getWardStats(dumps);
     const zoneStats = getZoneStats(dumps);
@@ -346,6 +347,7 @@ app.get('/api/stats', async (_req, res) => {
 
         return {
           total_reported: dumps.length,
+          citizen_reports: reports.length,
           active: dumps.filter((d) => d.status === 'active').length,
           pending: dumps.filter((d) => d.status === 'pending_verification').length,
           resolved: dumps.filter((d) => d.status === 'resolved').length,
