@@ -219,7 +219,7 @@ export default function ReportDrawer({
   };
 
   return (
-    <div className="bg-white rounded-t-[24px] md:rounded-[24px] border border-natural-sand shadow-2xl md:shadow-lg p-4 md:p-5 flex flex-col gap-3 relative overflow-hidden max-h-[70vh] md:max-h-[85vh] overflow-y-auto">
+    <div className="bg-white rounded-t-[24px] md:rounded-[24px] border border-natural-sand shadow-2xl md:shadow-lg p-4 md:p-5 flex flex-col gap-3 relative overflow-hidden max-h-none md:max-h-[85vh] overflow-y-auto">
       <div className="flex items-center justify-between sticky top-0 bg-white z-10 pb-1">
         <div>
           <h3 className="text-sm font-bold text-natural-heading">{tr.title}</h3>
@@ -300,6 +300,7 @@ export default function ReportDrawer({
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">
+                  <p className="text-[11px] text-[#7A7872] leading-relaxed md:hidden">{tr.mapAdjustHint}</p>
                   <div className="bg-status-clean-light border border-status-clean/30 rounded-2xl p-3 flex items-center justify-between gap-3">
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4 text-status-clean" />

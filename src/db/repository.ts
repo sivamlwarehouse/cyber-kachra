@@ -5,14 +5,29 @@ import { getSupabase, isSupabaseConfigured } from './supabase';
 
 export type { DBState } from './local-store';
 
+function errorText(err: unknown): string {
+  if (err instanceof Error) {
+    const cause = err.cause instanceof Error ? err.cause.message : String(err.cause ?? '');
+    return `${err.message} ${cause}`;
+  }
+  if (err && typeof err === 'object') {
+    const o = err as Record<string, unknown>;
+    return [o.message, o.details, o.hint, o.code].filter(Boolean).join(' ');
+  }
+  return String(err);
+}
+
 function isTransientDbError(err: unknown): boolean {
-  const message = err instanceof Error ? err.message : String(err);
+  const message = errorText(err);
   return (
     message.includes('timeout') ||
     message.includes('Connection terminated') ||
     message.includes('ENOTFOUND') ||
+    message.includes('getaddrinfo') ||
     message.includes('fetch failed') ||
-    message.includes('Failed to fetch')
+    message.includes('Failed to fetch') ||
+    message.includes('ECONNREFUSED') ||
+    message.includes('EAI_AGAIN')
   );
 }
 
@@ -254,25 +269,36 @@ export async function ensureSeedData(): Promise<void> {
 
   console.log(`✓ Supabase configured (${process.env.SUPABASE_URL})`);
 
-  const { count, error } = await getSupabase()
-    .from('dumps')
-    .select('*', { count: 'exact', head: true });
-  if (error) throw error;
-  if ((count ?? 0) > 0) {
-    console.log(`✓ Supabase connected — ${count} dump(s) in database.`);
-    return;
+  try {
+    const { count, error } = await getSupabase()
+      .from('dumps')
+      .select('*', { count: 'exact', head: true });
+    if (error) throw error;
+    if ((count ?? 0) > 0) {
+      console.log(`✓ Supabase connected — ${count} dump(s) in database.`);
+      return;
+    }
+
+    const { error: dumpError } = await getSupabase().from('dumps').insert(initialDumps);
+    if (dumpError) throw dumpError;
+
+    const { error: reportError } = await getSupabase().from('citizen_reports').insert(initialReports);
+    if (reportError) throw reportError;
+
+    const { error: verificationError } = await getSupabase()
+      .from('verification_logs')
+      .insert(initialVerifications);
+    if (verificationError) throw verificationError;
+
+    console.log('Seeded Supabase with initial civic waste tracker data.');
+  } catch (err) {
+    if (isTransientDbError(err)) {
+      await local.localEnsureSeedData();
+      console.warn(
+        '⚠ Supabase unreachable — using in-memory store. Fix SUPABASE_URL / SERVICE_ROLE_KEY or restore your project.',
+      );
+      return;
+    }
+    throw err;
   }
-
-  const { error: dumpError } = await getSupabase().from('dumps').insert(initialDumps);
-  if (dumpError) throw dumpError;
-
-  const { error: reportError } = await getSupabase().from('citizen_reports').insert(initialReports);
-  if (reportError) throw reportError;
-
-  const { error: verificationError } = await getSupabase()
-    .from('verification_logs')
-    .insert(initialVerifications);
-  if (verificationError) throw verificationError;
-
-  console.log('Seeded Supabase with initial civic waste tracker data.');
 }

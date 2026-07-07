@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { createClient } from '@supabase/supabase-js';
+import { createSupabaseClient } from '../src/db/supabase';
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();
@@ -23,9 +23,7 @@ async function main() {
   console.log(`Project: ${process.env.SUPABASE_PROJECT_REF ?? url}`);
   console.log('Connecting...');
 
-  const client = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  const client = createSupabaseClient(url, key);
 
   const { count, error } = await client
     .from('dumps')

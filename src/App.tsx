@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { motion } from 'motion/react';
 import { Dump, Ward, Constituency, LeaderboardEntry } from './types';
 import { wards, constituencies } from './wards_constituencies';
-import { clampToHyderabad } from './hyderabad-bounds';
+import { snapToReportLocation, HYDERABAD_CENTER, clampToHyderabad } from './hyderabad-bounds';
 import StatsDashboard from './components/StatsDashboard';
 import MapContainer from './components/MapContainer';
 import Leaderboard from './components/Leaderboard';
@@ -100,28 +100,45 @@ export default function App() {
 
   // Anonymous device hash for vote deduplication (not shown in UI)
   const handleRequestGeolocation = () => {
+    const fallback = {
+      lat: HYDERABAD_CENTER[0],
+      lng: HYDERABAD_CENTER[1],
+    };
+
     if (!navigator.geolocation) {
       showNotice(t.app.geolocationUnsupported, "info");
-      // Fallback center of Hyderabad
-      setReportCoords(clampToHyderabad(17.3850, 78.4867));
+      setReportCoords(snapToReportLocation(fallback.lat, fallback.lng));
       return;
     }
 
+    const applyCoords = (lat: number, lng: number, successMessage: string) => {
+      const snapped = snapToReportLocation(lat, lng);
+      setReportCoords(snapped);
+      showNotice(successMessage, successMessage === t.app.gpsSuccess ? "success" : "info");
+    };
+
     showNotice(t.app.gpsRetrieving, "info");
+
+    const tryLowAccuracy = () => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          applyCoords(position.coords.latitude, position.coords.longitude, t.app.gpsSuccess);
+        },
+        (err) => {
+          console.warn("Geolocation failed, falling back to map center:", err);
+          showNotice(t.app.gpsFallback, "info");
+          setReportCoords(snapToReportLocation(fallback.lat, fallback.lng));
+        },
+        { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 },
+      );
+    };
+
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setReportCoords(clampToHyderabad(
-          position.coords.latitude,
-          position.coords.longitude,
-        ));
-        showNotice(t.app.gpsSuccess, "success");
+        applyCoords(position.coords.latitude, position.coords.longitude, t.app.gpsSuccess);
       },
-      (err) => {
-        console.warn("Geolocation permission error, falling back to map center:", err);
-        showNotice(t.app.gpsFallback, "info");
-        setReportCoords(clampToHyderabad(17.3850, 78.4867));
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
+      () => tryLowAccuracy(),
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 },
     );
   };
 
@@ -147,6 +164,9 @@ export default function App() {
     setSelectedDump(null);
     setReportInitialAddress('');
     setReportMode(true);
+    requestAnimationFrame(() => {
+      document.getElementById('report-map')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
     handleRequestGeolocation();
   };
 
@@ -403,9 +423,12 @@ export default function App() {
         />
 
         {/* Dynamic Full screen/Workspace Layout */}
-        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch min-h-[450px]">
+        <div className={`flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch min-h-[450px] ${reportMode ? 'max-lg:flex max-lg:flex-col max-lg:min-h-0' : ''}`}>
           {/* Map Column */}
-          <div className="lg:col-span-8 flex flex-col gap-3 h-full">
+          <div
+            id="report-map"
+            className={`lg:col-span-8 flex flex-col gap-3 h-full ${reportMode ? 'max-lg:min-h-[42vh] max-lg:shrink-0' : ''}`}
+          >
             <div className="flex-1 relative min-h-[400px]">
               <MapContainer
                 dumps={dumps}
@@ -429,14 +452,7 @@ export default function App() {
           </div>
 
           {/* Leaderboard / Details Panel Column */}
-          <div className={`lg:col-span-4 h-full ${reportMode ? 'fixed inset-x-0 bottom-0 z-50 lg:relative lg:inset-auto' : ''}`}>
-            {reportMode && (
-              <div
-                className="fixed inset-0 bg-black/30 z-40 lg:hidden"
-                onClick={handleCancelReport}
-                aria-hidden
-              />
-            )}
+          <div className="lg:col-span-4 h-full max-lg:relative">
             {reportMode ? (
               <ReportDrawer
                 onReportSuccess={() => {}}

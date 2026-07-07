@@ -6,6 +6,7 @@ import type { Feature, FeatureCollection, Polygon, MultiPolygon } from 'geojson'
 import type { Ward } from '../types';
 import wardsMeta from './wards-meta.json';
 import { distanceMeters } from '../geo-utils';
+import { isWithinHyderabad } from '../hyderabad-bounds';
 
 type GeoFeature = Feature<Polygon | MultiPolygon>;
 
@@ -92,6 +93,11 @@ export function isWithinGhmcBoundary(lat: number, lng: number): boolean {
   ensureLoaded();
   if (!ghmcBoundary) return true;
   return booleanPointInPolygon(point([lng, lat]), ghmcBoundary);
+}
+
+/** Accept reports anywhere on the visible Hyderabad map; ward is resolved separately. */
+export function isAcceptableReportLocation(lat: number, lng: number): boolean {
+  return isWithinHyderabad(lat, lng);
 }
 
 export function getZoneForCoord(lat: number, lng: number): string {

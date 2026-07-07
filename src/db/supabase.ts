@@ -1,6 +1,19 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import ws from 'ws';
 
 let client: SupabaseClient | null = null;
+
+function serverClientOptions() {
+  return {
+    auth: { persistSession: false, autoRefreshToken: false },
+    // Node.js < 22 has no native WebSocket; ws is required for Realtime on the server.
+    realtime: { transport: ws as unknown as typeof WebSocket },
+  };
+}
+
+export function createSupabaseClient(url: string, key: string): SupabaseClient {
+  return createClient(url, key, serverClientOptions());
+}
 
 function envKey(): string | undefined {
   const key =
@@ -26,9 +39,7 @@ export function getSupabase(): SupabaseClient {
     );
   }
 
-  client = createClient(url, key, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
+  client = createSupabaseClient(url, key);
 
   return client;
 }

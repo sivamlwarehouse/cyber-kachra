@@ -20,6 +20,14 @@ export function clampToHyderabad(lat: number, lng: number): { lat: number; lng: 
   };
 }
 
+/** Snap coords for reporting — avoids clamping far-away GPS to map corners outside GHMC. */
+export function snapToReportLocation(lat: number, lng: number): { lat: number; lng: number } {
+  if (!isWithinHyderabad(lat, lng)) {
+    return { lat: HYDERABAD_CENTER[0], lng: HYDERABAD_CENTER[1] };
+  }
+  return clampToHyderabad(lat, lng);
+}
+
 export function isWithinHyderabad(lat: number, lng: number): boolean {
   return (
     lat >= HYDERABAD_BOUNDS.south &&

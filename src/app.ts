@@ -2,9 +2,8 @@ import dotenv from 'dotenv';
 import express from 'express';
 import path from 'path';
 import { Dump, CitizenReport, VerificationLog } from './types';
-import { getWardForCoord, isWithinGhmcBoundary } from './ghmc/ward-lookup';
+import { getWardForCoord, isAcceptableReportLocation } from './ghmc/ward-lookup';
 import { getConstituencyForCoord, getDistanceMeters, wards, constituencies } from './wards_constituencies';
-import { isWithinHyderabad } from './hyderabad-bounds';
 import {
   deleteDump,
   deleteReport,
@@ -101,11 +100,8 @@ app.get('/api/resolve-location', (req, res) => {
     if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
       return res.status(400).json({ error: 'lat and lng query parameters are required' });
     }
-    if (!isWithinHyderabad(lat, lng)) {
+    if (!isAcceptableReportLocation(lat, lng)) {
       return res.status(400).json({ error: 'Coordinates are outside Greater Hyderabad bounds.' });
-    }
-    if (!isWithinGhmcBoundary(lat, lng)) {
-      return res.status(400).json({ error: 'Coordinates are outside GHMC municipal limits.' });
     }
     const ward = getWardForCoord(lat, lng);
     const constituency = getConstituencyForCoord(lat, lng);
@@ -143,7 +139,7 @@ app.post('/api/dumps', async (req, res) => {
       });
     }
 
-    if (!isWithinHyderabad(lat, lng) || !isWithinGhmcBoundary(lat, lng)) {
+    if (!isAcceptableReportLocation(lat, lng)) {
       return res.status(400).json({ error: 'Reports must be within Greater Hyderabad municipal limits.' });
     }
 
