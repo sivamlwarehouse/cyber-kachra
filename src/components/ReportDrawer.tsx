@@ -3,6 +3,7 @@ import { Camera, Upload, MapPin, CheckCircle2, AlertTriangle, RefreshCw, X, Shie
 import { Dump } from '../types';
 import { useLanguage } from '../i18n/LanguageContext';
 import { compressImageFile, formatPhotoSize } from '../utils/compress-image';
+import { checkGeolocationPermission } from '../utils/geolocation';
 import {
   Severity, ComplaintType, WasteType,
   SEVERITY_OPTIONS, WASTE_TYPE_OPTIONS,
@@ -81,9 +82,26 @@ export default function ReportDrawer({
   const [resolvingLocation, setResolvingLocation] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [photoSizeKb, setPhotoSizeKb] = useState<number | null>(null);
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [permissionDenied, setPermissionDenied] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const cameraInputRef = useRef<HTMLInputElement>(null);
+
+  // On mount, check if location permission is already denied so we can show instructions
+  useEffect(() => {
+    checkGeolocationPermission().then((state) => {
+      if (state === 'denied') setPermissionDenied(true);
+    });
+  }, []);
+
+  const handleGpsRequest = () => {
+    setGpsLoading(true);
+    setPermissionDenied(false);
+    onRequestGeolocation();
+    // Reset loading after 16s (covers the 15s timeout)
+    setTimeout(() => setGpsLoading(false), 16000);
+  };
 
   const stepIndex = STEPS.indexOf(step);
   const stepLabels: Record<Step, string> = {
@@ -98,6 +116,8 @@ export default function ReportDrawer({
       setLocationInfo(null);
       return;
     }
+    // GPS coords arrived — clear loading spinner
+    setGpsLoading(false);
     const controller = new AbortController();
     setResolvingLocation(true);
     fetch(
@@ -285,24 +305,56 @@ export default function ReportDrawer({
           {step === 'location' && (
             <div className="flex flex-col gap-3">
               {!reportCoords ? (
-                <div className="bg-status-active-light border border-status-active/20 rounded-2xl p-4 flex flex-col gap-3">
-                  <div className="flex gap-2">
-                    <MapPin className="w-5 h-5 text-status-active shrink-0" />
-                    <div>
-                      <p className="text-xs font-bold text-status-active">{tr.locationOff}</p>
-                      <p className="text-[11px] text-status-active/90 mt-1 leading-relaxed">
-                        Tap below to allow location access. On mobile, your browser will ask to share GPS.
-                      </p>
+                <div className="flex flex-col gap-3">
+                  {permissionDenied ? (
+                    // Browser has already BLOCKED location — show recovery instructions
+                    <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex flex-col gap-3">
+                      <div className="flex gap-2">
+                        <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-xs font-bold text-red-600">Location Access Blocked</p>
+                          <p className="text-[11px] text-red-500/90 mt-1 leading-relaxed">
+                            Your browser has blocked location for this site. To fix this:
+                          </p>
+                        </div>
+                      </div>
+                      <div className="bg-white rounded-xl px-3 py-2.5 flex flex-col gap-1.5 border border-red-100">
+                        <p className="text-[10px] font-bold text-[#A3A199] uppercase font-mono">iPhone / Safari</p>
+                        <p className="text-[11px] text-natural-heading leading-relaxed">Settings → Safari → Location → Allow</p>
+                        <p className="text-[10px] font-bold text-[#A3A199] uppercase font-mono mt-1">Android / Chrome</p>
+                        <p className="text-[11px] text-natural-heading leading-relaxed">Tap the lock icon in address bar → Permissions → Location → Allow</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleGpsRequest}
+                        className="w-full bg-red-500 hover:opacity-90 text-white font-semibold py-2.5 rounded-full text-xs flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <RefreshCw className="w-4 h-4" />
+                        Try Again After Enabling
+                      </button>
                     </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={onRequestGeolocation}
-                    className="w-full bg-status-active hover:opacity-90 text-white font-semibold py-3 rounded-full text-xs flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <RefreshCw className="w-4 h-4" />
-                    Enable GPS Location
-                  </button>
+                  ) : (
+                    <div className="bg-status-active-light border border-status-active/20 rounded-2xl p-4 flex flex-col gap-3">
+                      <div className="flex gap-2">
+                        <MapPin className="w-5 h-5 text-status-active shrink-0" />
+                        <div>
+                          <p className="text-xs font-bold text-status-active">{tr.locationOff}</p>
+                          <p className="text-[11px] text-status-active/90 mt-1 leading-relaxed">
+                            Tap below to allow location access. Your browser will ask to share GPS.
+                          </p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handleGpsRequest}
+                        disabled={gpsLoading}
+                        className="w-full bg-status-active hover:opacity-90 disabled:opacity-70 text-white font-semibold py-3 rounded-full text-xs flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        <RefreshCw className={`w-4 h-4 ${gpsLoading ? 'animate-spin' : ''}`} />
+                        {gpsLoading ? 'Waiting for GPS...' : 'Enable GPS Location'}
+                      </button>
+                    </div>
+                  )}
                 </div>
               ) : (
                 <div className="flex flex-col gap-2">

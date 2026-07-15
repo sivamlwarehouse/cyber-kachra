@@ -2,7 +2,19 @@ import { snapToReportLocation, HYDERABAD_CENTER, isWithinHyderabad } from '../hy
 
 export type GeoResult =
   | { ok: true; lat: number; lng: number; fromDevice: boolean; outOfBounds?: boolean }
-  | { ok: false; error: string; lat: number; lng: number };
+  | { ok: false; error: string; lat: number; lng: number; permissionDenied?: boolean };
+
+/** Check the current geolocation permission state without triggering a prompt. */
+export async function checkGeolocationPermission(): Promise<PermissionState | 'unsupported'> {
+  if (!navigator.geolocation) return 'unsupported';
+  if (!navigator.permissions) return 'prompt'; // older browsers — assume prompt
+  try {
+    const status = await navigator.permissions.query({ name: 'geolocation' });
+    return status.state;
+  } catch {
+    return 'prompt';
+  }
+}
 
 /** Request GPS — must be called from a user tap/click on mobile (iOS Safari). */
 export function requestDeviceLocation(): Promise<GeoResult> {
@@ -33,20 +45,18 @@ export function requestDeviceLocation(): Promise<GeoResult> {
       },
       (err) => {
         const isPermissionDenied = err && typeof err === 'object' && 'code' in err && err.code === 1;
-        const message = isPermissionDenied
-          ? 'Location permission denied. Allow location access in browser settings.'
-          : 'Could not read GPS. Enable location and try again.';
         resolve({
           ok: false,
-          error: message,
+          error: isPermissionDenied ? 'PERMISSION_DENIED' : 'Could not read GPS. Please try again.',
           lat: fallback.lat,
           lng: fallback.lng,
+          permissionDenied: isPermissionDenied,
         });
       },
       {
         enableHighAccuracy: true,
-        timeout: 15000,   // 15 seconds is enough for a cold GPS lock
-        maximumAge: 0,    // always request a fresh position, never use cache
+        timeout: 15000,
+        maximumAge: 0,
       }
     );
   });

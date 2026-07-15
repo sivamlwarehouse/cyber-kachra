@@ -112,7 +112,10 @@ export default function App() {
           showNotice(t.app.gpsSuccess, 'success');
         }
       } else {
-        const errMsg = 'error' in result ? result.error : t.app.gpsFallback;
+        const raw = 'error' in result ? result.error : '';
+        const errMsg = raw === 'PERMISSION_DENIED'
+          ? 'Location blocked by browser. See instructions below to re-enable it.'
+          : raw || t.app.gpsFallback;
         showNotice(errMsg, 'info');
       }
     });
