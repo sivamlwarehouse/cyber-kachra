@@ -39,11 +39,17 @@ export default function DumpUpdateSheet({
     setGpsLoading(true);
     setGpsError(null);
     const result = await requestDeviceLocation();
-    setCoords({ lat: result.lat, lng: result.lng });
     if (!result.ok) {
-      setGpsError('error' in result ? result.error : 'Could not read GPS.');
-    } else if ('outOfBounds' in result && result.outOfBounds) {
-      setGpsError('Note: Location is outside Greater Hyderabad. Snapped to city center.');
+      const errResult = result as { ok: false, error: string, permissionDenied?: boolean };
+      setGpsError(errResult.error === 'PERMISSION_DENIED'
+        ? 'Location blocked. Enable location in browser settings.'
+        : errResult.error || 'Could not read GPS.');
+      setGpsLoading(false);
+      return;
+    }
+    setCoords({ lat: result.rawLat, lng: result.rawLng });
+    if (result.outOfBounds) {
+      setGpsError('Note: Location is outside Greater Hyderabad. Drag pin on map to correct.');
     }
     setGpsLoading(false);
   };
@@ -79,13 +85,18 @@ export default function DumpUpdateSheet({
 
     if (!coords) {
       const gps = await requestDeviceLocation();
-      lat = gps.lat;
-      lng = gps.lng;
-      setCoords({ lat, lng });
       if (!gps.ok) {
-        setGpsError('error' in gps ? gps.error : 'Could not read GPS.');
-      } else if ('outOfBounds' in gps && gps.outOfBounds) {
-        setGpsError('Note: Location is outside Greater Hyderabad. Snapped to city center.');
+        const errGps = gps as { ok: false, error: string, permissionDenied?: boolean };
+        setGpsError(errGps.error === 'PERMISSION_DENIED'
+          ? 'Location blocked. Enable location in browser settings.'
+          : errGps.error || 'Could not read GPS.');
+      } else {
+        lat = gps.rawLat;
+        lng = gps.rawLng;
+        setCoords({ lat, lng });
+        if (gps.outOfBounds) {
+          setGpsError('Note: Location is outside Greater Hyderabad.');
+        }
       }
     }
 

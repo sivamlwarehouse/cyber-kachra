@@ -104,19 +104,21 @@ export default function App() {
   const handleRequestGeolocation = () => {
     showNotice(t.app.gpsRetrieving, 'info');
     void requestDeviceLocation().then((result) => {
-      setReportCoords({ lat: result.lat, lng: result.lng });
-      if (result.ok) {
-        if ('outOfBounds' in result && result.outOfBounds) {
-          showNotice('Location is outside Greater Hyderabad! Snapping to city center.', 'info');
-        } else {
-          showNotice(t.app.gpsSuccess, 'success');
-        }
-      } else {
-        const raw = 'error' in result ? result.error : '';
-        const errMsg = raw === 'PERMISSION_DENIED'
-          ? 'Location blocked by browser. See instructions below to re-enable it.'
-          : raw || t.app.gpsFallback;
+      if (!result.ok) {
+        // DON'T set coords on failure — keep the pin where it is
+        const errResult = result as { ok: false, error: string, permissionDenied?: boolean };
+        const errMsg = errResult.error === 'PERMISSION_DENIED'
+          ? 'Location blocked by browser. Enable location in browser settings and try again.'
+          : errResult.error || t.app.gpsFallback;
         showNotice(errMsg, 'info');
+        return;
+      }
+      // Use raw GPS coords for the pin so the user sees their real location
+      setReportCoords({ lat: result.rawLat, lng: result.rawLng });
+      if (result.outOfBounds) {
+        showNotice('GPS detected, but you appear to be outside Greater Hyderabad. Drag the pin to the correct spot.', 'info');
+      } else {
+        showNotice(t.app.gpsSuccess, 'success');
       }
     });
   };

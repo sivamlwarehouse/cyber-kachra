@@ -1,8 +1,8 @@
 import { snapToReportLocation, HYDERABAD_CENTER, isWithinHyderabad } from '../hyderabad-bounds';
 
 export type GeoResult =
-  | { ok: true; lat: number; lng: number; fromDevice: boolean; outOfBounds?: boolean }
-  | { ok: false; error: string; lat: number; lng: number; permissionDenied?: boolean };
+  | { ok: true; lat: number; lng: number; rawLat: number; rawLng: number; fromDevice: boolean; outOfBounds: boolean }
+  | { ok: false; error: string; permissionDenied?: boolean };
 
 /** Check the current geolocation permission state without triggering a prompt. */
 export async function checkGeolocationPermission(): Promise<PermissionState | 'unsupported'> {
@@ -18,14 +18,10 @@ export async function checkGeolocationPermission(): Promise<PermissionState | 'u
 
 /** Request GPS — must be called from a user tap/click on mobile (iOS Safari). */
 export function requestDeviceLocation(): Promise<GeoResult> {
-  const fallback = snapToReportLocation(HYDERABAD_CENTER[0], HYDERABAD_CENTER[1]);
-
   if (!navigator.geolocation) {
     return Promise.resolve({
       ok: false,
       error: 'Geolocation is not supported by this browser.',
-      lat: fallback.lat,
-      lng: fallback.lng,
     });
   }
 
@@ -34,11 +30,14 @@ export function requestDeviceLocation(): Promise<GeoResult> {
       (pos) => {
         const { latitude, longitude } = pos.coords;
         const outOfBounds = !isWithinHyderabad(latitude, longitude);
+        // Return BOTH raw coords and snapped coords
         const snapped = snapToReportLocation(latitude, longitude);
         resolve({
           ok: true,
-          lat: snapped.lat,
+          lat: snapped.lat,       // snapped (for report submission)
           lng: snapped.lng,
+          rawLat: latitude,       // raw GPS (for map display)
+          rawLng: longitude,
           fromDevice: true,
           outOfBounds,
         });
@@ -48,8 +47,6 @@ export function requestDeviceLocation(): Promise<GeoResult> {
         resolve({
           ok: false,
           error: isPermissionDenied ? 'PERMISSION_DENIED' : 'Could not read GPS. Please try again.',
-          lat: fallback.lat,
-          lng: fallback.lng,
           permissionDenied: isPermissionDenied,
         });
       },
