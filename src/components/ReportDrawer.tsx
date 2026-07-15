@@ -14,7 +14,7 @@ import {
 interface ReportDrawerProps {
   onReportSuccess: (message: string) => void;
   reportCoords: { lat: number; lng: number } | null;
-  onRequestGeolocation: () => void;
+  onRequestGeolocation: () => void | Promise<void>;
   onCancel: () => void;
   initialAddressText?: string;
   onSubmitReport: (data: {
@@ -95,12 +95,11 @@ export default function ReportDrawer({
     });
   }, []);
 
-  const handleGpsRequest = () => {
+  const handleGpsRequest = async () => {
     setGpsLoading(true);
     setPermissionDenied(false);
-    onRequestGeolocation();
-    // Reset loading after 16s (covers the 15s timeout)
-    setTimeout(() => setGpsLoading(false), 16000);
+    await onRequestGeolocation();
+    setGpsLoading(false);
   };
 
   const stepIndex = STEPS.indexOf(step);
@@ -116,8 +115,6 @@ export default function ReportDrawer({
       setLocationInfo(null);
       return;
     }
-    // GPS coords arrived — clear loading spinner
-    setGpsLoading(false);
     const controller = new AbortController();
     setResolvingLocation(true);
     fetch(

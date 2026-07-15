@@ -103,7 +103,7 @@ export default function App() {
   // Anonymous device hash for vote deduplication (not shown in UI)
   const handleRequestGeolocation = () => {
     showNotice(t.app.gpsRetrieving, 'info');
-    void requestDeviceLocation().then((result) => {
+    return requestDeviceLocation().then((result) => {
       if (!result.ok) {
         // DON'T set coords on failure — keep the pin where it is
         const errResult = result as { ok: false, error: string, permissionDenied?: boolean };
