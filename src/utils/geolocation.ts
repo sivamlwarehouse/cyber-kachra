@@ -45,8 +45,8 @@ export function requestDeviceLocation(): Promise<GeoResult> {
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000,    // 10 seconds timeout is standard and avoids hanging
-        maximumAge: 30000, // 30 seconds cache allowance avoids timeouts indoors
+        timeout: 15000,   // 15 seconds is enough for a cold GPS lock
+        maximumAge: 0,    // always request a fresh position, never use cache
       }
     );
   });

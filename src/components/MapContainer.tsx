@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useMemo } from 'react';
+import React, { useEffect, useRef, useMemo, useState } from 'react';
 import L from 'leaflet';
 import { Dump, LeaderboardEntry } from '../types';
 import { HYDERABAD_CENTER, HYDERABAD_LEAFLET_BOUNDS, clampToHyderabad } from '../hyderabad-bounds';
@@ -12,6 +12,7 @@ interface MapContainerProps {
   reportCoords: { lat: number; lng: number } | null;
   onUpdateReportCoords: (coords: { lat: number; lng: number }) => void;
   wardLeaderboard?: LeaderboardEntry[];
+  onLocateMe?: (coords: { lat: number; lng: number }) => void;
 }
 
 export default function MapContainer({
@@ -22,6 +23,7 @@ export default function MapContainer({
   reportCoords,
   onUpdateReportCoords,
   wardLeaderboard = [],
+  onLocateMe,
 }: MapContainerProps) {
   const { t } = useLanguage();
   const m = t.map;
@@ -63,6 +65,46 @@ export default function MapContainer({
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<{ [key: string]: L.Marker }>({});
   const reportMarkerRef = useRef<L.Marker | null>(null);
+  const userLocationMarkerRef = useRef<L.Marker | null>(null);
+  const prevReportCoordsRef = useRef<{ lat: number; lng: number } | null>(null);
+  const [locating, setLocating] = useState(false);
+  const [locateError, setLocateError] = useState<string | null>(null);
+
+  const handleLocateMe = () => {
+    if (!navigator.geolocation) {
+      setLocateError('Geolocation not supported.');
+      return;
+    }
+    setLocating(true);
+    setLocateError(null);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        const map = mapRef.current;
+        if (map) {
+          map.setView([latitude, longitude], Math.max(map.getZoom(), 16), { animate: true });
+          if (userLocationMarkerRef.current) {
+            userLocationMarkerRef.current.setLatLng([latitude, longitude]);
+          } else {
+            const icon = L.divIcon({
+              html: '<div style="width:14px;height:14px;border-radius:50%;background:#2563EB;border:2.5px solid white;box-shadow:0 0 0 5px rgba(37,99,235,0.25);"></div>',
+              className: '',
+              iconSize: [14, 14],
+              iconAnchor: [7, 7],
+            });
+            userLocationMarkerRef.current = L.marker([latitude, longitude], { icon, interactive: false }).addTo(map);
+          }
+        }
+        if (onLocateMe) onLocateMe({ lat: latitude, lng: longitude });
+        setLocating(false);
+      },
+      () => {
+        setLocateError('Could not get your location.');
+        setLocating(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
+  };
 
   // Initialize Map
   useEffect(() => {
@@ -201,7 +243,7 @@ export default function MapContainer({
     });
   }, [selectedDump]);
 
-  // Manage Report Pin
+  // Manage Report Pin — only pan on first GPS placement, not on every map-drag update
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -235,14 +277,21 @@ export default function MapContainer({
             onUpdateReportCoords(clampToHyderabad(position.lat, position.lng));
           });
       }
-      
-      // Pan map gently to the report pin
-      map.panTo([reportCoords.lat, reportCoords.lng]);
+
+      // Only pan when this is the FIRST time coords are set (GPS placement).
+      // Subsequent updates come from the user dragging the pin — don't scroll back.
+      const isFirstPlacement = !prevReportCoordsRef.current;
+      if (isFirstPlacement) {
+        map.setView([reportCoords.lat, reportCoords.lng], Math.max(map.getZoom(), 15), { animate: true, duration: 0.6 });
+      }
+      prevReportCoordsRef.current = reportCoords;
     } else {
       if (reportMarkerRef.current) {
         reportMarkerRef.current.remove();
         reportMarkerRef.current = null;
       }
+      // Reset so next GPS enable pans correctly
+      prevReportCoordsRef.current = null;
     }
   }, [reportMode, reportCoords, onUpdateReportCoords]);
 
@@ -291,6 +340,28 @@ export default function MapContainer({
 
       <div className="absolute bottom-4 left-4 z-20 bg-white/95 backdrop-blur-md px-3 py-1.5 rounded-full border border-natural-sand/80 shadow-sm text-[10px] font-mono text-[#7A7872]">
         {m.hyderabadOnly}
+      </div>
+
+      {/* Locate Me Button */}
+      <div className="absolute bottom-4 right-14 z-20 flex flex-col items-end gap-1.5">
+        {locateError && (
+          <div className="bg-white border border-status-active/30 rounded-xl px-3 py-1.5 text-[10px] text-status-active font-medium shadow-sm whitespace-nowrap">
+            {locateError}
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={handleLocateMe}
+          disabled={locating}
+          title="Show my current location"
+          className="bg-white border border-natural-sand shadow-md rounded-full w-10 h-10 flex items-center justify-center hover:bg-natural-ivory transition-colors cursor-pointer disabled:opacity-60"
+        >
+          {locating ? (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="animate-spin"><path d="M21 12a9 9 0 1 1-6.219-8.56"/></svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" fill="#2563EB"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg>
+          )}
+        </button>
       </div>
 
       {reportMode && (
