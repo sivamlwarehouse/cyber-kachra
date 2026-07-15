@@ -26,8 +26,26 @@ export function requestDeviceLocation(): Promise<GeoResult> {
   }
 
   return new Promise<GeoResult>((resolve) => {
+    let settled = false;
+
+    // Hard fallback timeout: iOS Safari Incognito and some Android devices
+    // silently swallow the GPS request without triggering success or error callbacks.
+    // This timer ensures the app doesn't hang on an infinite loading spinner.
+    const fallbackTimer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        resolve({
+          ok: false,
+          error: 'GPS request timed out. If you are in Private/Incognito mode, location may be blocked.',
+        });
+      }
+    }, 15000);
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(fallbackTimer);
         const { latitude, longitude } = pos.coords;
         const outOfBounds = !isWithinHyderabad(latitude, longitude);
         // Return BOTH raw coords and snapped coords
@@ -43,6 +61,9 @@ export function requestDeviceLocation(): Promise<GeoResult> {
         });
       },
       (err) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(fallbackTimer);
         const isPermissionDenied = err && typeof err === 'object' && 'code' in err && err.code === 1;
         resolve({
           ok: false,
@@ -52,7 +73,7 @@ export function requestDeviceLocation(): Promise<GeoResult> {
       },
       {
         enableHighAccuracy: true,
-        timeout: 15000,
+        timeout: 10000, // Tell the browser to timeout after 10s (before our 15s hard fallback)
         maximumAge: 0,
       }
     );

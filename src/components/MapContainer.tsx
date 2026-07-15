@@ -77,8 +77,21 @@ export default function MapContainer({
     }
     setLocating(true);
     setLocateError(null);
+
+    let settled = false;
+    const fallbackTimer = setTimeout(() => {
+      if (!settled) {
+        settled = true;
+        setLocateError('GPS timed out. If in Private Mode, location may be blocked.');
+        setLocating(false);
+      }
+    }, 15000);
+
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(fallbackTimer);
         const { latitude, longitude } = pos.coords;
         const map = mapRef.current;
         if (map) {
@@ -99,10 +112,13 @@ export default function MapContainer({
         setLocating(false);
       },
       () => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(fallbackTimer);
         setLocateError('Could not get your location.');
         setLocating(false);
       },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
