@@ -111,7 +111,7 @@ export default function App() {
           ? 'Location blocked by browser. Enable location in browser settings and try again.'
           : errResult.error || t.app.gpsFallback;
         showNotice(errMsg, 'info');
-        return;
+        return result;
       }
       // Use raw GPS coords for the pin so the user sees their real location
       setReportCoords({ lat: result.rawLat, lng: result.rawLng });
@@ -120,6 +120,7 @@ export default function App() {
       } else {
         showNotice(t.app.gpsSuccess, 'success');
       }
+      return result;
     });
   };
 

@@ -73,8 +73,8 @@ export function requestDeviceLocation(): Promise<GeoResult> {
       },
       {
         enableHighAccuracy: true,
-        timeout: 10000, // Tell the browser to timeout after 10s (before our 15s hard fallback)
-        maximumAge: 0,
+        timeout: 14000, // 14s browser timeout before 15s hard fallback
+        maximumAge: 15000, // allow 15-second old cached location (helps indoors)
       }
     );
   });

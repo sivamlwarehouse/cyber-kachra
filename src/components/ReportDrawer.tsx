@@ -14,7 +14,7 @@ import {
 interface ReportDrawerProps {
   onReportSuccess: (message: string) => void;
   reportCoords: { lat: number; lng: number } | null;
-  onRequestGeolocation: () => void | Promise<void>;
+  onRequestGeolocation: () => Promise<import('../utils/geolocation').GeoResult | void>;
   onCancel: () => void;
   initialAddressText?: string;
   onSubmitReport: (data: {
@@ -98,7 +98,13 @@ export default function ReportDrawer({
   const handleGpsRequest = async () => {
     setGpsLoading(true);
     setPermissionDenied(false);
-    await onRequestGeolocation();
+    const result = await onRequestGeolocation();
+    if (result && !result.ok) {
+      const errResult = result as { ok: false, error: string };
+      if (errResult.error === 'PERMISSION_DENIED') {
+        setPermissionDenied(true);
+      }
+    }
     setGpsLoading(false);
   };
 
