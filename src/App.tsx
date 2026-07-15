@@ -106,7 +106,11 @@ export default function App() {
     void requestDeviceLocation().then((result) => {
       setReportCoords({ lat: result.lat, lng: result.lng });
       if (result.ok) {
-        showNotice(t.app.gpsSuccess, 'success');
+        if ('outOfBounds' in result && result.outOfBounds) {
+          showNotice('Location is outside Greater Hyderabad! Snapping to city center.', 'info');
+        } else {
+          showNotice(t.app.gpsSuccess, 'success');
+        }
       } else {
         const errMsg = 'error' in result ? result.error : t.app.gpsFallback;
         showNotice(errMsg, 'info');

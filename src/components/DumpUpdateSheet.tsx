@@ -40,7 +40,11 @@ export default function DumpUpdateSheet({
     setGpsError(null);
     const result = await requestDeviceLocation();
     setCoords({ lat: result.lat, lng: result.lng });
-    if (!result.ok) setGpsError('error' in result ? result.error : 'Could not read GPS.');
+    if (!result.ok) {
+      setGpsError('error' in result ? result.error : 'Could not read GPS.');
+    } else if ('outOfBounds' in result && result.outOfBounds) {
+      setGpsError('Note: Location is outside Greater Hyderabad. Snapped to city center.');
+    }
     setGpsLoading(false);
   };
 
@@ -80,6 +84,8 @@ export default function DumpUpdateSheet({
       setCoords({ lat, lng });
       if (!gps.ok) {
         setGpsError('error' in gps ? gps.error : 'Could not read GPS.');
+      } else if ('outOfBounds' in gps && gps.outOfBounds) {
+        setGpsError('Note: Location is outside Greater Hyderabad. Snapped to city center.');
       }
     }
 
